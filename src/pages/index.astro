@@ -108,11 +108,11 @@ const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
 ---
 
 <Layout title="Welcome to Our Restaurant">
-  <!-- Hero Section -->
+  <!-- Hero Section with Fixed Z-Index -->
   <section class="relative">
     <div
       class="h-[70vh] bg-gradient-to-r from-stone-800 to-stone-900 flex items-center">
-      <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute inset-0 overflow-hidden z-0">
         <div class="w-full h-full bg-black opacity-40"></div>
       </div>
       <div class="container mx-auto px-4 relative z-10 text-center">
