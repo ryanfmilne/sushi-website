@@ -13,7 +13,7 @@ const menuCollection = defineCollection({
     vegan: z.boolean().default(false),
     glutenFree: z.boolean().default(false),
     spicyLevel: z.number().min(0).max(3).optional(),
-    published: z.boolean().default(true),``
+    published: z.boolean().default(true),
   }),
 });
 
