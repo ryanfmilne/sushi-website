@@ -1,51 +1,70 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import MenuCard from "../components/MenuCard.astro";
-import SpecialsCard from "../components/SpecialsCard.astro";
-import HoursDisplay from "../components/HoursDisplay.astro";
 
-// Import and fetch menu items (featured ones for homepage)
-import { getCollection } from "astro:content";
-const menuItems = await getCollection("menu", ({ data }) => {
-  return data.published === true;
-});
+// Placeholder data
+const featuredMenuItems = [
+  {
+    data: {
+      title: "Sample Menu Item 1",
+      price: 12.99,
+      description: "This is a sample menu item description",
+      vegetarian: true,
+      vegan: false,
+      glutenFree: true,
+      spicyLevel: 1,
+    },
+  },
+  {
+    data: {
+      title: "Sample Menu Item 2",
+      price: 14.99,
+      description: "Another delicious sample item description",
+      vegetarian: false,
+      vegan: false,
+      glutenFree: false,
+      spicyLevel: 2,
+    },
+  },
+];
 
-// Get just a few items for the homepage (one from each category)
-const featuredMenuItems = Object.values(
-  menuItems.reduce((acc, item) => {
-    if (!acc[item.data.category]) {
-      acc[item.data.category] = item;
-    }
-    return acc;
-  }, {})
-).slice(0, 4);
-
-// Import and fetch specials
-const specialsItems = await getCollection("specials", ({ data }) => {
-  // Show only featured specials or the most recent ones
-  return data.featured === true || new Date(data.endDate) >= new Date();
-});
-
-// Sort specials by endDate (closest ending first) and take top 2
-const featuredSpecials = [...specialsItems]
-  .sort(
-    (a, b) =>
-      new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime()
-  )
-  .slice(0, 2);
+// Placeholder specials
+const featuredSpecials = [
+  {
+    data: {
+      title: "Weekend Special",
+      startDate: new Date("2025-01-01"),
+      endDate: new Date("2025-12-31"),
+      description: "Special weekend offer",
+      price: 24.99,
+      regularPrice: 29.99,
+      featured: true,
+    },
+  },
+];
 ---
 
 <Layout title="Welcome to Our Restaurant">
+  <!-- Tailwind CSS Test Section -->
+  <div class="p-4 bg-amber-100 text-center">
+    <h2 class="text-2xl font-bold text-amber-800">Tailwind CSS Test</h2>
+    <p class="tw-test">
+      This box should have an amber background and white text if Tailwind is
+      working
+    </p>
+
+    <div class="flex justify-center gap-4 mt-4">
+      <div class="bg-red-500 text-white p-3 rounded">Red</div>
+      <div class="bg-green-500 text-white p-3 rounded">Green</div>
+      <div class="bg-blue-500 text-white p-3 rounded">Blue</div>
+    </div>
+  </div>
+
   <!-- Hero Section -->
   <section class="relative">
     <div
       class="h-[70vh] bg-gradient-to-r from-stone-800 to-stone-900 flex items-center">
       <div class="absolute inset-0 overflow-hidden">
-        <img
-          src="/images/hero-image.jpg"
-          alt="Restaurant hero image"
-          class="w-full h-full object-cover opacity-40"
-        />
+        <div class="w-full h-full bg-black opacity-40"></div>
       </div>
       <div class="container mx-auto px-4 relative z-10 text-center">
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
@@ -104,16 +123,43 @@ const featuredSpecials = [...specialsItems]
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {
           featuredMenuItems.map((item) => (
-            <MenuCard
-              title={item.data.title}
-              price={item.data.price}
-              description={item.data.description}
-              image={item.data.image}
-              vegetarian={item.data.vegetarian}
-              vegan={item.data.vegan}
-              glutenFree={item.data.glutenFree}
-              spicyLevel={item.data.spicyLevel}
-            />
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="text-lg font-semibold">{item.data.title}</h3>
+                  <span class="text-amber-600 font-medium">
+                    ${item.data.price.toFixed(2)}
+                  </span>
+                </div>
+                <p class="text-stone-600 text-sm mb-3">
+                  {item.data.description}
+                </p>
+                <div class="flex flex-wrap items-center gap-2 mt-auto">
+                  {item.data.vegetarian && (
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                      Vegetarian
+                    </span>
+                  )}
+                  {item.data.vegan && (
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                      Vegan
+                    </span>
+                  )}
+                  {item.data.glutenFree && (
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                      Gluten-Free
+                    </span>
+                  )}
+                  {item.data.spicyLevel > 0 && (
+                    <div class="flex items-center">
+                      <span class="text-xs text-stone-600 mr-1">
+                        Spicy: {item.data.spicyLevel}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           ))
         }
       </div>
@@ -154,16 +200,43 @@ const featuredSpecials = [...specialsItems]
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {featuredSpecials.map((special) => (
-              <SpecialsCard
-                title={special.data.title}
-                startDate={new Date(special.data.startDate)}
-                endDate={new Date(special.data.endDate)}
-                description={special.data.description}
-                price={special.data.price}
-                regularPrice={special.data.regularPrice}
-                image={special.data.image}
-                featured={special.data.featured}
-              />
+              <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4">
+                  <div class="flex flex-col gap-1 mb-3">
+                    <h3 class="text-lg font-semibold">{special.data.title}</h3>
+                    <div class="text-sm text-stone-500">
+                      <span>
+                        {special.data.startDate.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        -
+                        {special.data.endDate.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p class="text-stone-600 text-sm mb-3">
+                    {special.data.description}
+                  </p>
+
+                  <div class="flex items-center gap-2">
+                    {special.data.price && (
+                      <span class="text-amber-600 font-medium text-lg">
+                        ${special.data.price.toFixed(2)}
+                      </span>
+                    )}
+                    {special.data.regularPrice && special.data.price && (
+                      <span class="text-stone-500 line-through text-sm">
+                        ${special.data.regularPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -198,7 +271,38 @@ const featuredSpecials = [...specialsItems]
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
         <div>
           <h2 class="text-2xl font-bold mb-6">Hours of Operation</h2>
-          <HoursDisplay className="bg-white p-6 rounded-lg shadow-md" />
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <ul class="space-y-2">
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Monday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Tuesday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Wednesday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Thursday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Friday</span>
+                <span class="text-right">11:00 AM - 10:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Saturday</span>
+                <span class="text-right">11:00 AM - 10:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Sunday</span>
+                <span class="text-right">12:00 PM - 8:00 PM</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div>
