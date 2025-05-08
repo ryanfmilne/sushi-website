@@ -1,0 +1,320 @@
+---
+// Navigation.astro
+// A responsive navigation component for a sushi restaurant website
+
+// You can customize these menu items as needed
+const menuItems = [
+  { name: "Home", url: "/" },
+  { name: "Menu", url: "/menu" },
+  { name: "Specials", url: "/specials" },
+  //   { name: "Reservations", url: "/reservations" },
+  { name: "About Us", url: "/about" },
+  //   { name: "Locations", url: "/locations" },
+  { name: "Contact", url: "/contact" },
+];
+
+// You can pass these props to customize the navigation
+interface Props {
+  logo?: string;
+  logoAlt?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  activeTextColor?: string;
+}
+
+const {
+  logo = "/images/logo.svg",
+  logoAlt = "Sushi Restaurant Logo",
+  backgroundColor = "#ffffff",
+  textColor = "#333333",
+  activeTextColor = "#e53e3e",
+} = Astro.props;
+
+// Get the current path to highlight the active menu item
+const pathname = Astro.url.pathname;
+---
+
+<nav
+  class="nav-container"
+  style={`--bg-color: ${backgroundColor}; --text-color: ${textColor}; --active-color: ${activeTextColor};`}>
+  <div class="nav-content">
+    <div class="logo-container">
+      <a href="/" class="logo-link">
+        <img src={logo} alt={logoAlt} class="logo" />
+        <!-- <span class="logo-text">Sushi Delight</span> -->
+      </a>
+    </div>
+
+    <button class="mobile-toggle" aria-label="Toggle menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <div class="menu-container">
+      <ul class="menu">
+        {
+          menuItems.map((item) => (
+            <li class="menu-item">
+              <a
+                href={item.url}
+                class={`menu-link ${pathname === item.url ? "active" : ""}`}>
+                {item.name}
+              </a>
+            </li>
+          ))
+        }
+        <li class="menu-item cta">
+          <a href="/order" class="order-now text-2xl">Order Online</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Handle mobile menu toggle with a more reliable approach
+  document.addEventListener("astro:page-load", () => {
+    setupNavigation();
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setupNavigation();
+  });
+
+  function setupNavigation() {
+    const mobileToggle = document.querySelector(".mobile-toggle");
+    const menuContainer = document.querySelector(".menu-container");
+
+    if (!mobileToggle || !menuContainer) return;
+
+    // Toggle menu when hamburger is clicked
+    mobileToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      mobileToggle.classList.toggle("active");
+      menuContainer.classList.toggle("active");
+    });
+
+    // Close mobile menu when clicking anywhere else
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (
+        !target.closest(".mobile-toggle") &&
+        !target.closest(".menu-container")
+      ) {
+        mobileToggle.classList.remove("active");
+        menuContainer.classList.remove("active");
+      }
+    });
+
+    // Add click events to mobile menu items to close the menu when clicked
+    const menuLinks = menuContainer.querySelectorAll(".menu-link");
+    menuLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        mobileToggle.classList.remove("active");
+        menuContainer.classList.remove("active");
+      });
+    });
+
+    // Close mobile menu when window is resized
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) {
+        mobileToggle.classList.remove("active");
+        menuContainer.classList.remove("active");
+      }
+    });
+  }
+</script>
+
+<style>
+  /* CSS Variables from props are accessed via var(--variable-name) */
+  .nav-container {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: var(--bg-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  .nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    height: 70px;
+  }
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+  }
+
+  .logo {
+    height: 40px;
+    width: auto;
+    margin-right: 0.5rem;
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+  }
+
+  .mobile-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .bar {
+    width: 100%;
+    height: 3px;
+    background-color: var(--text-color);
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 1.5rem;
+  }
+
+  .menu-link {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 0.5rem 0;
+    position: relative;
+  }
+
+  .menu-link:hover {
+    color: var(--active-color);
+  }
+
+  .menu-link.active {
+    color: var(--active-color);
+  }
+
+  .menu-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--active-color);
+  }
+
+  .order-now {
+    background-color: var(--active-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .order-now:hover {
+    background-color: #c53030; /* Darker shade for hover */
+  }
+
+  /* Mobile styles - Using a simple max-width approach */
+  @media (max-width: 768px) {
+    .mobile-toggle {
+      display: flex;
+      z-index: 1001;
+    }
+
+    .mobile-toggle.active .bar:nth-child(1) {
+      transform: translateY(9px) rotate(45deg);
+    }
+
+    .mobile-toggle.active .bar:nth-child(2) {
+      opacity: 0;
+    }
+
+    .mobile-toggle.active .bar:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+    }
+
+    .menu-container {
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 0;
+      background-color: var(--bg-color);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .menu-container.active {
+      height: calc(100vh - 70px);
+      opacity: 1;
+      visibility: visible;
+      overflow-y: auto;
+    }
+
+    .menu {
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 0;
+      gap: 1.5rem;
+    }
+
+    .menu-item {
+      width: 100%;
+      text-align: center;
+    }
+
+    .menu-link {
+      display: block;
+      padding: 0.75rem 1rem;
+      font-size: 1.2rem;
+      width: 100%;
+    }
+
+    .menu-link.active::after {
+      display: none;
+    }
+
+    .cta {
+      margin-top: 1rem;
+      width: 80%;
+    }
+
+    .order-now {
+      display: block;
+      text-align: center;
+      padding: 0.75rem 1rem;
+      width: 100%;
+    }
+  }
+</style>
