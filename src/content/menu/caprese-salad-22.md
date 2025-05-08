@@ -1,6 +1,6 @@
 ---
 title: Caprese Salad 22
-category: Appetizers
+category: Entradas
 price: 12.99
 description: Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.
 image: /images/tobiko-roll-1200.jpg

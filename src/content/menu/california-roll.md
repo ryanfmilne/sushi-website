@@ -1,6 +1,6 @@
 ---
 title: California Roll
-category: Main Course
+category: Entradas
 price: 9.99
 description: A nice roll.
 vegetarian: false

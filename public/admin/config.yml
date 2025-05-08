@@ -17,7 +17,17 @@ collections:
           label: "Category",
           name: "category",
           widget: "select",
-          options: ["Appetizers", "Main Course", "Desserts", "Drinks"],
+          options:
+            [
+              "Entradas",
+              "Charolas",
+              "Arroces",
+              "Naturales",
+              "Empanizados",
+              "Horneados",
+              "Bebidas",
+              "Extras",
+            ],
         }
       - { label: "Price", name: "price", widget: "number", value_type: "float" }
       - { label: "Description", name: "description", widget: "text" }
