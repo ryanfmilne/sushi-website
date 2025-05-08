@@ -5,7 +5,7 @@ const menuCollection = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    category: z.enum(['Appetizers', 'Main Course', 'Desserts', 'Drinks']),
+    category: z.enum(['Entradas', 'Charolas', 'Arroces', 'Naturales', 'Empanizados', 'Horneados', 'Bebidas', 'Extras']),
     price: z.number(),
     description: z.string(),
     image: z.string().optional(),
