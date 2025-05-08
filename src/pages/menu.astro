@@ -1,26 +1,140 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import MenuCard from "../components/MenuCard.astro";
 
-// Import all menu items
-import { getCollection } from "astro:content";
-const allMenuItems = await getCollection("menu", ({ data }) => {
-  return data.published === true;
-});
-
-// Group menu items by category
-const categories = ["Appetizers", "Main Course", "Desserts", "Drinks"];
-const menuByCategory = categories.reduce((acc, category) => {
-  acc[category] = allMenuItems.filter(
-    (item) => item.data.category === category
-  );
-  return acc;
-}, {});
+// Hardcoded menu items to avoid dependency on content collections
+const menuItems = {
+  Appetizers: [
+    {
+      title: "Caprese Salad",
+      price: 12.99,
+      description:
+        "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
+      vegetarian: true,
+      vegan: false,
+      glutenFree: true,
+      spicyLevel: 0,
+    },
+    {
+      title: "Bruschetta",
+      price: 10.99,
+      description:
+        "Toasted baguette topped with diced tomatoes, garlic, fresh basil, and extra virgin olive oil.",
+      vegetarian: true,
+      vegan: true,
+      glutenFree: false,
+      spicyLevel: 0,
+    },
+    {
+      title: "Spinach & Artichoke Dip",
+      price: 13.99,
+      description:
+        "Creamy spinach and artichoke dip served with warm tortilla chips.",
+      vegetarian: true,
+      vegan: false,
+      glutenFree: false,
+      spicyLevel: 0,
+    },
+  ],
+  "Main Course": [
+    {
+      title: "Grilled Salmon",
+      price: 24.99,
+      description:
+        "Wild-caught salmon fillet, grilled to perfection, served with roasted vegetables and lemon herb sauce.",
+      vegetarian: false,
+      vegan: false,
+      glutenFree: true,
+      spicyLevel: 0,
+    },
+    {
+      title: "Filet Mignon",
+      price: 36.99,
+      description:
+        "8oz premium beef tenderloin, served with truffle mashed potatoes and seasonal vegetables.",
+      vegetarian: false,
+      vegan: false,
+      glutenFree: true,
+      spicyLevel: 0,
+    },
+    {
+      title: "Wild Mushroom Risotto",
+      price: 19.99,
+      description:
+        "Creamy Arborio rice with a medley of wild mushrooms, finished with white wine, Parmesan, and fresh herbs.",
+      vegetarian: true,
+      vegan: false,
+      glutenFree: true,
+      spicyLevel: 0,
+    },
+    {
+      title: "Spicy Thai Curry",
+      price: 18.99,
+      description:
+        "Aromatic coconut curry with your choice of protein, bamboo shoots, bell peppers, and Thai basil. Served with jasmine rice.",
+      vegetarian: false,
+      vegan: false,
+      glutenFree: true,
+      spicyLevel: 2,
+    },
+  ],
+  Desserts: [
+    {
+      title: "Chocolate Lava Cake",
+      price: 9.99,
+      description:
+        "Warm chocolate cake with a molten center, served with vanilla ice cream and fresh berries.",
+      vegetarian: true,
+      vegan: false,
+      glutenFree: false,
+      spicyLevel: 0,
+    },
+    {
+      title: "Tiramisu",
+      price: 8.99,
+      description:
+        "Classic Italian dessert made with layers of coffee-soaked ladyfingers and mascarpone cream, dusted with cocoa.",
+      vegetarian: true,
+      vegan: false,
+      glutenFree: false,
+      spicyLevel: 0,
+    },
+  ],
+  Drinks: [
+    {
+      title: "House Wine",
+      price: 9.99,
+      description:
+        "Your choice of our house red or white wine, selected from local vineyards.",
+      vegetarian: true,
+      vegan: true,
+      glutenFree: true,
+      spicyLevel: 0,
+    },
+    {
+      title: "Craft Beer Selection",
+      price: 7.99,
+      description:
+        "Rotating selection of local craft beers. Ask your server for current options.",
+      vegetarian: true,
+      vegan: true,
+      glutenFree: false,
+      spicyLevel: 0,
+    },
+  ],
+};
 
 // Check if there are items for filtering
-const hasVegetarian = allMenuItems.some((item) => item.data.vegetarian);
-const hasVegan = allMenuItems.some((item) => item.data.vegan);
-const hasGlutenFree = allMenuItems.some((item) => item.data.glutenFree);
+const hasVegetarian = Object.values(menuItems).some((category) =>
+  category.some((item) => item.vegetarian)
+);
+const hasVegan = Object.values(menuItems).some((category) =>
+  category.some((item) => item.vegan)
+);
+const hasGlutenFree = Object.values(menuItems).some((category) =>
+  category.some((item) => item.glutenFree)
+);
+
+const categories = Object.keys(menuItems);
 ---
 
 <Layout title="Our Menu">
@@ -87,7 +201,7 @@ const hasGlutenFree = allMenuItems.some((item) => item.data.glutenFree);
         {
           categories.map(
             (category) =>
-              menuByCategory[category].length > 0 && (
+              menuItems[category].length > 0 && (
                 <div
                   class="menu-category"
                   id={`category-${category.toLowerCase().replace(" ", "-")}`}>
@@ -95,22 +209,51 @@ const hasGlutenFree = allMenuItems.some((item) => item.data.glutenFree);
                     {category}
                   </h2>
                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {menuByCategory[category].map((item) => (
+                    {menuItems[category].map((item) => (
                       <div
                         class="menu-item"
-                        data-vegetarian={item.data.vegetarian.toString()}
-                        data-vegan={item.data.vegan.toString()}
-                        data-gluten-free={item.data.glutenFree.toString()}>
-                        <MenuCard
-                          title={item.data.title}
-                          price={item.data.price}
-                          description={item.data.description}
-                          image={item.data.image}
-                          vegetarian={item.data.vegetarian}
-                          vegan={item.data.vegan}
-                          glutenFree={item.data.glutenFree}
-                          spicyLevel={item.data.spicyLevel}
-                        />
+                        data-vegetarian={item.vegetarian.toString()}
+                        data-vegan={item.vegan.toString()}
+                        data-gluten-free={item.glutenFree.toString()}>
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                          <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                              <h3 class="text-lg font-semibold">
+                                {item.title}
+                              </h3>
+                              <span class="text-amber-600 font-medium">
+                                ${item.price.toFixed(2)}
+                              </span>
+                            </div>
+                            <p class="text-stone-600 text-sm mb-3">
+                              {item.description}
+                            </p>
+                            <div class="flex flex-wrap items-center gap-2 mt-auto">
+                              {item.vegetarian && (
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                                  Vegetarian
+                                </span>
+                              )}
+                              {item.vegan && (
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                                  Vegan
+                                </span>
+                              )}
+                              {item.glutenFree && (
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                                  Gluten-Free
+                                </span>
+                              )}
+                              {item.spicyLevel > 0 && (
+                                <div class="flex items-center">
+                                  <span class="text-xs text-stone-600 mr-1">
+                                    Spicy: {item.spicyLevel}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>

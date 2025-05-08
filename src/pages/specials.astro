@@ -1,31 +1,57 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import SpecialsCard from "../components/SpecialsCard.astro";
 
-// Import all specials
-import { getCollection } from "astro:content";
-const allSpecials = await getCollection("specials");
+// Hardcoded specials data
+const specials = [
+  {
+    title: "Date Night Special",
+    startDate: new Date("2025-05-01"),
+    endDate: new Date("2025-06-30"),
+    description:
+      "Enjoy a romantic evening with our special three-course menu for two. Includes appetizer, two entrees, and a shared dessert.",
+    price: 79.99,
+    regularPrice: 99.99,
+    featured: true,
+    active: true,
+  },
+  {
+    title: "Weekday Lunch Express",
+    startDate: new Date("2025-04-15"),
+    endDate: new Date("2025-07-15"),
+    description:
+      "Perfect for busy professionals! Choose from a select menu of quick lunch options, served within 15 minutes or it's free.",
+    price: 15.99,
+    regularPrice: 18.99,
+    featured: false,
+    active: true,
+  },
+  {
+    title: "Happy Hour",
+    startDate: new Date("2025-01-01"),
+    endDate: new Date("2025-12-31"),
+    description:
+      "Join us Monday through Friday, 4-7 PM for half-price appetizers and $2 off all drinks.",
+    price: null,
+    regularPrice: null,
+    featured: false,
+    active: true,
+  },
+  {
+    title: "Spring Tasting Menu",
+    startDate: new Date("2025-03-01"),
+    endDate: new Date("2025-04-30"),
+    description:
+      "Celebrate the flavors of spring with our special seasonal tasting menu featuring the freshest local ingredients.",
+    price: 49.99,
+    regularPrice: 59.99,
+    featured: false,
+    active: false,
+  },
+];
 
 // Separate active and past specials
-const now = new Date();
-const activeSpecials = allSpecials
-  .filter((special) => new Date(special.data.endDate) >= now)
-  .sort((a, b) => {
-    // Featured specials first, then by end date (soonest ending first)
-    if (a.data.featured && !b.data.featured) return -1;
-    if (!a.data.featured && b.data.featured) return 1;
-    return (
-      new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime()
-    );
-  });
-
-const pastSpecials = allSpecials
-  .filter((special) => new Date(special.data.endDate) < now)
-  .sort(
-    (a, b) =>
-      // Sort by end date (most recent first)
-      new Date(b.data.endDate).getTime() - new Date(a.data.endDate).getTime()
-  );
+const activeSpecials = specials.filter((special) => special.active);
+const pastSpecials = specials.filter((special) => !special.active);
 ---
 
 <Layout title="Specials & Promotions">
@@ -46,16 +72,49 @@ const pastSpecials = allSpecials
             <h2 class="text-2xl font-semibold mb-6">Current Offers</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {activeSpecials.map((special) => (
-                <SpecialsCard
-                  title={special.data.title}
-                  startDate={new Date(special.data.startDate)}
-                  endDate={new Date(special.data.endDate)}
-                  description={special.data.description}
-                  price={special.data.price}
-                  regularPrice={special.data.regularPrice}
-                  image={special.data.image}
-                  featured={special.data.featured}
-                />
+                <div
+                  class={`bg-white rounded-lg shadow-md overflow-hidden ${special.featured ? "border-2 border-amber-500" : ""}`}>
+                  <div class="p-4">
+                    <div class="flex flex-col gap-1 mb-3">
+                      <h3 class="text-lg font-semibold">{special.title}</h3>
+                      <div class="text-sm text-stone-500">
+                        <span>
+                          {special.startDate.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}{" "}
+                          -
+                          {special.endDate.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p class="text-stone-600 text-sm mb-3">
+                      {special.description}
+                    </p>
+
+                    <div class="flex items-center gap-2">
+                      {special.price && (
+                        <span class="text-amber-600 font-medium text-lg">
+                          ${special.price.toFixed(2)}
+                        </span>
+                      )}
+                      {special.regularPrice && special.price && (
+                        <span class="text-stone-500 line-through text-sm">
+                          ${special.regularPrice.toFixed(2)}
+                        </span>
+                      )}
+                      {special.featured && (
+                        <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded ml-auto">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -102,17 +161,44 @@ const pastSpecials = allSpecials
           <div>
             <h2 class="text-2xl font-semibold mb-6">Past Offers</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-70">
-              {pastSpecials.slice(0, 6).map((special) => (
-                <SpecialsCard
-                  title={special.data.title}
-                  startDate={new Date(special.data.startDate)}
-                  endDate={new Date(special.data.endDate)}
-                  description={special.data.description}
-                  price={special.data.price}
-                  regularPrice={special.data.regularPrice}
-                  image={special.data.image}
-                  featured={false}
-                />
+              {pastSpecials.map((special) => (
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                  <div class="p-4">
+                    <div class="flex flex-col gap-1 mb-3">
+                      <h3 class="text-lg font-semibold">{special.title}</h3>
+                      <div class="text-sm text-stone-500">
+                        <span>
+                          {special.startDate.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}{" "}
+                          -
+                          {special.endDate.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p class="text-stone-600 text-sm mb-3">
+                      {special.description}
+                    </p>
+
+                    <div class="flex items-center gap-2">
+                      {special.price && (
+                        <span class="text-amber-600 font-medium text-lg">
+                          ${special.price.toFixed(2)}
+                        </span>
+                      )}
+                      {special.regularPrice && special.price && (
+                        <span class="text-stone-500 line-through text-sm">
+                          ${special.regularPrice.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

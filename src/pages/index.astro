@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import "../styles/test.css";
 
 // Placeholder data (hardcoded to avoid content collection dependencies)
 const featuredMenuItems = [
@@ -278,5 +279,60 @@ const featuredSpecials = [
   }
 
   <!-- Hours & Reservation Section -->
-  <section class="py-16 bg-stone-100"></section></Layout
->
+  <section class="py-16 bg-stone-100">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+        <div>
+          <h2 class="text-2xl font-bold mb-6">Hours of Operation</h2>
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <ul class="space-y-2">
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Monday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Tuesday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Wednesday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Thursday</span>
+                <span class="text-right">11:00 AM - 9:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Friday</span>
+                <span class="text-right">11:00 AM - 10:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Saturday</span>
+                <span class="text-right">11:00 AM - 10:00 PM</span>
+              </li>
+              <li class="flex justify-between py-1 border-b border-stone-200">
+                <span>Sunday</span>
+                <span class="text-right">12:00 PM - 8:00 PM</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold mb-6">Make a Reservation</h2>
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <p class="text-stone-600 mb-4">
+              Reserve your table to ensure the best dining experience. We look
+              forward to serving you!
+            </p>
+            <a
+              href="/contact"
+              class="block w-full bg-amber-600 hover:bg-amber-700 text-white text-center px-6 py-3 rounded-md font-medium transition-colors">
+              Contact Us for Reservations
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
