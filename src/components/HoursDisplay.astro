@@ -7,6 +7,7 @@ try {
   const hoursData = await import("../content/config/hours.json");
   hours = hoursSchema.parse(hoursData.default).hours;
 } catch (error) {
+  console.error("Error loading hours:", error);
   // Default hours if file doesn't exist or is invalid
   hours = [
     { day: "Monday", open: "11:00 AM", close: "9:00 PM", closed: false },

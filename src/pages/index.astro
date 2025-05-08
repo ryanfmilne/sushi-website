@@ -1,28 +1,54 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Placeholder data
+// Placeholder data (hardcoded to avoid content collection dependencies)
 const featuredMenuItems = [
   {
     data: {
-      title: "Sample Menu Item 1",
+      title: "Caprese Salad",
       price: 12.99,
-      description: "This is a sample menu item description",
+      description:
+        "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
       vegetarian: true,
       vegan: false,
       glutenFree: true,
-      spicyLevel: 1,
+      spicyLevel: 0,
     },
   },
   {
     data: {
-      title: "Sample Menu Item 2",
-      price: 14.99,
-      description: "Another delicious sample item description",
+      title: "Grilled Salmon",
+      price: 24.99,
+      description:
+        "Wild-caught salmon with roasted vegetables and lemon-dill sauce.",
       vegetarian: false,
       vegan: false,
+      glutenFree: true,
+      spicyLevel: 0,
+    },
+  },
+  {
+    data: {
+      title: "Mushroom Risotto",
+      price: 18.99,
+      description:
+        "Creamy arborio rice with wild mushrooms, parmesan, and herbs.",
+      vegetarian: true,
+      vegan: false,
+      glutenFree: true,
+      spicyLevel: 0,
+    },
+  },
+  {
+    data: {
+      title: "Chocolate Lava Cake",
+      price: 9.99,
+      description:
+        "Warm chocolate cake with a molten center, served with vanilla ice cream.",
+      vegetarian: true,
+      vegan: false,
       glutenFree: false,
-      spicyLevel: 2,
+      spicyLevel: 0,
     },
   },
 ];
@@ -34,7 +60,8 @@ const featuredSpecials = [
       title: "Weekend Special",
       startDate: new Date("2025-01-01"),
       endDate: new Date("2025-12-31"),
-      description: "Special weekend offer",
+      description:
+        "A delicious weekend special featuring our chef's signature dish.",
       price: 24.99,
       regularPrice: 29.99,
       featured: true,
@@ -44,23 +71,6 @@ const featuredSpecials = [
 ---
 
 <Layout title="Welcome to Our Restaurant">
-  <!-- Tailwind CSS Test Section -->
-  <div class="p-4 bg-slate-50 text-center">
-    <h2 class="text-5xl font-bold text-amber-800 font-black fill-amber-900">
-      Tailwind CSS Test
-    </h2>
-    <p class="tw-test">
-      This box should have an amber background and white text if Tailwind is
-      working
-    </p>
-
-    <div class="flex justify-center gap-4 mt-4">
-      <div class="bg-red-500 text-white p-3 rounded">Red</div>
-      <div class="bg-green-500 text-white p-3 rounded">Green</div>
-      <div class="bg-blue-500 text-white p-3 rounded">Blue</div>
-    </div>
-  </div>
-
   <!-- Hero Section -->
   <section class="relative">
     <div
@@ -268,60 +278,5 @@ const featuredSpecials = [
   }
 
   <!-- Hours & Reservation Section -->
-  <section class="py-16 bg-stone-100">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-        <div>
-          <h2 class="text-2xl font-bold mb-6">Hours of Operation</h2>
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <ul class="space-y-2">
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Monday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Tuesday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Wednesday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Thursday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Friday</span>
-                <span class="text-right">11:00 AM - 10:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Saturday</span>
-                <span class="text-right">11:00 AM - 10:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Sunday</span>
-                <span class="text-right">12:00 PM - 8:00 PM</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <h2 class="text-2xl font-bold mb-6">Make a Reservation</h2>
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <p class="text-stone-600 mb-4">
-              Reserve your table to ensure the best dining experience. We look
-              forward to serving you!
-            </p>
-            <a
-              href="/contact"
-              class="block w-full bg-amber-600 hover:bg-amber-700 text-white text-center px-6 py-3 rounded-md font-medium transition-colors">
-              Contact Us for Reservations
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</Layout>
+  <section class="py-16 bg-stone-100"></section></Layout
+>
