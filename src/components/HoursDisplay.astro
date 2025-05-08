@@ -1,0 +1,99 @@
+---
+import { hoursSchema } from "../content/config";
+
+// Try to import hours data
+let hours;
+try {
+  const hoursData = await import("../content/config/hours.json");
+  hours = hoursSchema.parse(hoursData.default).hours;
+} catch (error) {
+  // Default hours if file doesn't exist or is invalid
+  hours = [
+    { day: "Monday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Tuesday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Wednesday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Thursday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Friday", open: "11:00 AM", close: "10:00 PM", closed: false },
+    { day: "Saturday", open: "11:00 AM", close: "10:00 PM", closed: false },
+    { day: "Sunday", open: "12:00 PM", close: "8:00 PM", closed: false },
+  ];
+}
+
+// Get the current day
+const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
+
+// Check if we're open now
+const isOpenNow = () => {
+  const now = new Date();
+  const todayHours = hours.find((h) => h.day === currentDay);
+
+  if (!todayHours || todayHours.closed) return false;
+
+  const openTime = parseTimeString(todayHours.open);
+  const closeTime = parseTimeString(todayHours.close);
+
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+
+  return (
+    (currentHour > openTime.hour ||
+      (currentHour === openTime.hour && currentMinute >= openTime.minute)) &&
+    (currentHour < closeTime.hour ||
+      (currentHour === closeTime.hour && currentMinute < closeTime.minute))
+  );
+};
+
+// Helper to parse time strings like "11:00 AM"
+function parseTimeString(timeStr) {
+  const [timePart, ampm] = timeStr.split(" ");
+  let [hour, minute] = timePart.split(":").map(Number);
+
+  if (ampm === "PM" && hour !== 12) {
+    hour += 12;
+  } else if (ampm === "AM" && hour === 12) {
+    hour = 0;
+  }
+
+  return { hour, minute };
+}
+
+const open = isOpenNow();
+
+export interface Props {
+  showCurrentStatus?: boolean;
+  className?: string;
+}
+
+const { showCurrentStatus = true, className = "" } = Astro.props;
+---
+
+<div class={`hours-display ${className}`}>
+  {
+    showCurrentStatus && (
+      <div
+        class={`text-center mb-4 p-2 rounded-lg ${open ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+        <span class="font-medium">
+          {open ? "🟢 We're Open Now!" : "🔴 Sorry, We're Closed"}
+        </span>
+      </div>
+    )
+  }
+
+  <ul class="space-y-2">
+    {
+      hours.map((item) => (
+        <li
+          class={`flex justify-between py-1 border-b border-stone-200 ${item.day === currentDay ? "font-medium" : ""}`}>
+          <span>{item.day}</span>
+          <span class="text-right">
+            {item.closed ? (
+              <span class="text-red-600">Closed</span>
+            ) : (
+              `${item.open} - ${item.close}`
+            )}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</div>

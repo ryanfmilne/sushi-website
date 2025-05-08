@@ -1,0 +1,139 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SpecialsCard from "../components/SpecialsCard.astro";
+
+// Import all specials
+import { getCollection } from "astro:content";
+const allSpecials = await getCollection("specials");
+
+// Separate active and past specials
+const now = new Date();
+const activeSpecials = allSpecials
+  .filter((special) => new Date(special.data.endDate) >= now)
+  .sort((a, b) => {
+    // Featured specials first, then by end date (soonest ending first)
+    if (a.data.featured && !b.data.featured) return -1;
+    if (!a.data.featured && b.data.featured) return 1;
+    return (
+      new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime()
+    );
+  });
+
+const pastSpecials = allSpecials
+  .filter((special) => new Date(special.data.endDate) < now)
+  .sort(
+    (a, b) =>
+      // Sort by end date (most recent first)
+      new Date(b.data.endDate).getTime() - new Date(a.data.endDate).getTime()
+  );
+---
+
+<Layout title="Specials & Promotions">
+  <div class="bg-stone-100 py-8">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">
+        Specials & Promotions
+      </h1>
+      <p class="text-center text-stone-600 max-w-2xl mx-auto mb-8">
+        Discover our latest special offers, seasonal dishes, and limited-time
+        promotions.
+      </p>
+
+      <!-- Current Specials -->
+      {
+        activeSpecials.length > 0 ? (
+          <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6">Current Offers</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {activeSpecials.map((special) => (
+                <SpecialsCard
+                  title={special.data.title}
+                  startDate={new Date(special.data.startDate)}
+                  endDate={new Date(special.data.endDate)}
+                  description={special.data.description}
+                  price={special.data.price}
+                  regularPrice={special.data.regularPrice}
+                  image={special.data.image}
+                  featured={special.data.featured}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div class="text-center py-8 mb-8 bg-white rounded-lg shadow-sm">
+            <p class="text-lg text-stone-600">
+              There are no active specials at the moment. Check back soon for
+              new offers!
+            </p>
+          </div>
+        )
+      }
+
+      <!-- Stay Updated Section -->
+      <div class="bg-amber-50 rounded-lg p-6 md:p-8 mb-12">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-2xl font-semibold mb-4 text-center">Stay Updated</h2>
+          <p class="text-center text-stone-600 mb-6">
+            Sign up for our newsletter to be the first to know about new
+            specials, events, and seasonal offerings.
+          </p>
+
+          <form
+            class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+            id="newsletter-form">
+            <input
+              type="email"
+              placeholder="Your email address"
+              required
+              class="flex-grow px-4 py-3 rounded-md border border-stone-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+            />
+            <button
+              type="submit"
+              class="whitespace-nowrap bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Past Specials -->
+      {
+        pastSpecials.length > 0 && (
+          <div>
+            <h2 class="text-2xl font-semibold mb-6">Past Offers</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-70">
+              {pastSpecials.slice(0, 6).map((special) => (
+                <SpecialsCard
+                  title={special.data.title}
+                  startDate={new Date(special.data.startDate)}
+                  endDate={new Date(special.data.endDate)}
+                  description={special.data.description}
+                  price={special.data.price}
+                  regularPrice={special.data.regularPrice}
+                  image={special.data.image}
+                  featured={false}
+                />
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Basic form submission handling
+  document
+    .getElementById("newsletter-form")
+    ?.addEventListener("submit", function (event) {
+      event.preventDefault();
+      alert(
+        "Thank you for subscribing! This form is not functional in this demo, but would be connected to an email service in production."
+      );
+
+      // Reset the form
+      const form = event.target as HTMLFormElement;
+      form.reset();
+    });
+</script>

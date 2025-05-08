@@ -12,7 +12,112 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - { name: "title", label: "Title" }
-      - { name: "price", label: "Price" }
-      - { name: "description", label: "Description", widget: "text" }
-      - { name: "image", label: "Image", widget: "image" }
+      - { label: "Title", name: "title", widget: "string" }
+      - {
+          label: "Category",
+          name: "category",
+          widget: "select",
+          options: ["Appetizers", "Main Course", "Desserts", "Drinks"],
+        }
+      - { label: "Price", name: "price", widget: "number", value_type: "float" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - {
+          label: "Vegetarian",
+          name: "vegetarian",
+          widget: "boolean",
+          default: false,
+        }
+      - { label: "Vegan", name: "vegan", widget: "boolean", default: false }
+      - {
+          label: "Gluten Free",
+          name: "glutenFree",
+          widget: "boolean",
+          default: false,
+        }
+      - {
+          label: "Spicy Level",
+          name: "spicyLevel",
+          widget: "number",
+          value_type: "int",
+          min: 0,
+          max: 3,
+          required: false,
+        }
+      - {
+          label: "Published",
+          name: "published",
+          widget: "boolean",
+          default: true,
+        }
+
+  - name: "specials"
+    label: "Specials"
+    folder: "src/content/specials"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Start Date", name: "startDate", widget: "datetime" }
+      - { label: "End Date", name: "endDate", widget: "datetime" }
+      - { label: "Description", name: "description", widget: "text" }
+      - {
+          label: "Price",
+          name: "price",
+          widget: "number",
+          value_type: "float",
+          required: false,
+        }
+      - {
+          label: "Regular Price",
+          name: "regularPrice",
+          widget: "number",
+          value_type: "float",
+          required: false,
+        }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - {
+          label: "Featured",
+          name: "featured",
+          widget: "boolean",
+          default: false,
+        }
+
+  - name: "config"
+    label: "Restaurant Configuration"
+    files:
+      - name: "hours"
+        label: "Business Hours"
+        file: "src/content/config/hours.json"
+        fields:
+          - label: "Hours"
+            name: "hours"
+            widget: "list"
+            fields:
+              - { label: "Day", name: "day", widget: "string" }
+              - { label: "Open Time", name: "open", widget: "string" }
+              - { label: "Close Time", name: "close", widget: "string" }
+              - {
+                  label: "Closed",
+                  name: "closed",
+                  widget: "boolean",
+                  default: false,
+                }
+
+      - name: "contact"
+        label: "Contact Information"
+        file: "src/content/config/contact.json"
+        fields:
+          - { label: "Restaurant Name", name: "name", widget: "string" }
+          - { label: "Address", name: "address", widget: "string" }
+          - { label: "City", name: "city", widget: "string" }
+          - { label: "State", name: "state", widget: "string" }
+          - { label: "Zip Code", name: "zip", widget: "string" }
+          - { label: "Phone", name: "phone", widget: "string" }
+          - { label: "Email", name: "email", widget: "string" }
+          - {
+              label: "Google Maps Link",
+              name: "mapUrl",
+              widget: "string",
+              required: false,
+            }

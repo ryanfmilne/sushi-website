@@ -1,0 +1,104 @@
+---
+export interface Props {
+  title: string;
+  startDate: Date;
+  endDate: Date;
+  description: string;
+  price?: number;
+  regularPrice?: number;
+  image?: string;
+  featured?: boolean;
+}
+
+const {
+  title,
+  startDate,
+  endDate,
+  description,
+  price,
+  regularPrice,
+  image,
+  featured = false,
+} = Astro.props;
+
+// Format dates
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+};
+
+// Calculate discount percentage if both prices exist
+const discountPercentage =
+  regularPrice && price
+    ? Math.round(((regularPrice - price) / regularPrice) * 100)
+    : null;
+
+// Check if special is current
+const now = new Date();
+const isActive = startDate <= now && endDate >= now;
+---
+
+<div
+  class={`bg-white rounded-lg shadow-md overflow-hidden ${featured ? "border-2 border-amber-500" : ""}`}>
+  {
+    image && (
+      <div class="relative h-48">
+        <img
+          src={image}
+          alt={title}
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
+        {featured && (
+          <div class="absolute top-0 right-0 bg-amber-500 text-white px-3 py-1 text-sm font-medium">
+            Featured
+          </div>
+        )}
+      </div>
+    )
+  }
+  <div class="p-4">
+    <div class="flex flex-col gap-1 mb-3">
+      <h3 class="text-lg font-semibold">{title}</h3>
+      <div class="text-sm text-stone-500">
+        {
+          isActive ? (
+            <span class="text-green-600 font-medium">Available now!</span>
+          ) : (
+            <span>
+              {formatDate(startDate)} - {formatDate(endDate)}
+            </span>
+          )
+        }
+      </div>
+    </div>
+
+    <p class="text-stone-600 text-sm mb-3">{description}</p>
+
+    <div class="flex items-center gap-2">
+      {
+        price && (
+          <span class="text-amber-600 font-medium text-lg">
+            ${price.toFixed(2)}
+          </span>
+        )
+      }
+      {
+        regularPrice && price && (
+          <span class="text-stone-500 line-through text-sm">
+            ${regularPrice.toFixed(2)}
+          </span>
+        )
+      }
+      {
+        discountPercentage && (
+          <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded ml-auto">
+            Save {discountPercentage}%
+          </span>
+        )
+      }
+    </div>
+  </div>
+</div>
