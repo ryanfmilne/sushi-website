@@ -1,140 +1,54 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from '../layouts/Layout.astro';
 
-// Hardcoded menu items to avoid dependency on content collections
-const menuItems = {
-  Appetizers: [
-    {
-      title: "Caprese Salad",
-      price: 12.99,
-      description:
-        "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-    {
-      title: "Bruschetta",
-      price: 10.99,
-      description:
-        "Toasted baguette topped with diced tomatoes, garlic, fresh basil, and extra virgin olive oil.",
-      vegetarian: true,
-      vegan: true,
-      glutenFree: false,
-      spicyLevel: 0,
-    },
-    {
-      title: "Spinach & Artichoke Dip",
-      price: 13.99,
-      description:
-        "Creamy spinach and artichoke dip served with warm tortilla chips.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: false,
-      spicyLevel: 0,
-    },
-  ],
-  "Main Course": [
-    {
-      title: "Grilled Salmon",
-      price: 24.99,
-      description:
-        "Wild-caught salmon fillet, grilled to perfection, served with roasted vegetables and lemon herb sauce.",
-      vegetarian: false,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-    {
-      title: "Filet Mignon",
-      price: 36.99,
-      description:
-        "8oz premium beef tenderloin, served with truffle mashed potatoes and seasonal vegetables.",
-      vegetarian: false,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-    {
-      title: "Wild Mushroom Risotto",
-      price: 19.99,
-      description:
-        "Creamy Arborio rice with a medley of wild mushrooms, finished with white wine, Parmesan, and fresh herbs.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-    {
-      title: "Spicy Thai Curry",
-      price: 18.99,
-      description:
-        "Aromatic coconut curry with your choice of protein, bamboo shoots, bell peppers, and Thai basil. Served with jasmine rice.",
-      vegetarian: false,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 2,
-    },
-  ],
-  Desserts: [
-    {
-      title: "Chocolate Lava Cake",
-      price: 9.99,
-      description:
-        "Warm chocolate cake with a molten center, served with vanilla ice cream and fresh berries.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: false,
-      spicyLevel: 0,
-    },
-    {
-      title: "Tiramisu",
-      price: 8.99,
-      description:
-        "Classic Italian dessert made with layers of coffee-soaked ladyfingers and mascarpone cream, dusted with cocoa.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: false,
-      spicyLevel: 0,
-    },
-  ],
-  Drinks: [
-    {
-      title: "House Wine",
-      price: 9.99,
-      description:
-        "Your choice of our house red or white wine, selected from local vineyards.",
-      vegetarian: true,
-      vegan: true,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-    {
-      title: "Craft Beer Selection",
-      price: 7.99,
-      description:
-        "Rotating selection of local craft beers. Ask your server for current options.",
-      vegetarian: true,
-      vegan: true,
-      glutenFree: false,
-      spicyLevel: 0,
-    },
-  ],
-};
+// Import all menu items from content collection
+let allMenuItems = [];
+let categories = [];
+let hasVegetarian = false;
+let hasVegan = false;
+let hasGlutenFree = false;
 
-// Check if there are items for filtering
-const hasVegetarian = Object.values(menuItems).some((category) =>
-  category.some((item) => item.vegetarian)
-);
-const hasVegan = Object.values(menuItems).some((category) =>
-  category.some((item) => item.vegan)
-);
-const hasGlutenFree = Object.values(menuItems).some((category) =>
-  category.some((item) => item.glutenFree)
-);
+try {
+  // Import the getCollection function from Astro content
+  const { getCollection } = await import('astro:content');
+  
+  // Fetch published menu items
+  allMenuItems = await getCollection('menu', ({ data }) => {
+    return data.published === true;
+  });
+  
+  // Check for dietary preferences
+  hasVegetarian = allMenuItems.some(item => item.data.vegetarian);
+  hasVegan = allMenuItems.some(item => item.data.vegan);
+  hasGlutenFree = allMenuItems.some(item => item.data.glutenFree);
+  
+  // Get unique categories and sort them
+  categories = [...new Set(allMenuItems.map(item => item.data.category))];
+  
+  // Sort categories in a logical order
+  const categoryOrder = ['Appetizers', 'Main Course', 'Desserts', 'Drinks'];
+  categories.sort((a, b) => {
+    const indexA = categoryOrder.indexOf(a);
+    const indexB = categoryOrder.indexOf(b);
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+} catch (error) {
+  console.error('Error loading menu items:', error);
+  // If there's an error, provide empty arrays
+  allMenuItems = [];
+  categories = [];
+}
 
-const categories = Object.keys(menuItems);
+// Group menu items by category
+const menuByCategory = categories.reduce((acc, category) => {
+  acc[category] = allMenuItems.filter(item => item.data.category === category);
+  return acc;
+}, {});
+
+// Fallback content if no menu items are found
+const noItemsMessage = "No menu items found. The restaurant owner will add menu items soon using the content management system.";
 ---
 
 <Layout title="Our Menu">
@@ -142,135 +56,114 @@ const categories = Object.keys(menuItems);
     <div class="container mx-auto px-4">
       <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">Our Menu</h1>
       <p class="text-center text-stone-600 max-w-2xl mx-auto mb-8">
-        Explore our carefully crafted dishes, prepared with fresh,
-        locally-sourced ingredients.
+        Explore our carefully crafted dishes, prepared with fresh, locally-sourced ingredients.
       </p>
-
+      
       <!-- Menu filters (will be enhanced with JavaScript) -->
-      {
-        (hasVegetarian || hasVegan || hasGlutenFree) && (
-          <div class="max-w-2xl mx-auto mb-8">
-            <div class="bg-white p-4 rounded-md shadow-sm">
-              <div class="text-sm font-medium text-stone-700 mb-2">
-                Dietary Preferences:
-              </div>
-              <div class="flex flex-wrap gap-3" id="menu-filters">
-                {hasVegetarian && (
-                  <label class="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500"
-                      data-filter="vegetarian"
-                    />
-                    <span class="ml-2 text-sm text-stone-700">Vegetarian</span>
-                  </label>
-                )}
-                {hasVegan && (
-                  <label class="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500"
-                      data-filter="vegan"
-                    />
-                    <span class="ml-2 text-sm text-stone-700">Vegan</span>
-                  </label>
-                )}
-                {hasGlutenFree && (
-                  <label class="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500"
-                      data-filter="glutenFree"
-                    />
-                    <span class="ml-2 text-sm text-stone-700">Gluten-Free</span>
-                  </label>
-                )}
-                <button
-                  id="clear-filters"
-                  class="ml-auto text-sm text-amber-600 hover:text-amber-700 hidden">
-                  Clear Filters
-                </button>
-              </div>
+      {(hasVegetarian || hasVegan || hasGlutenFree) && (
+        <div class="max-w-2xl mx-auto mb-8">
+          <div class="bg-white p-4 rounded-md shadow-sm">
+            <div class="text-sm font-medium text-stone-700 mb-2">Dietary Preferences:</div>
+            <div class="flex flex-wrap gap-3" id="menu-filters">
+              {hasVegetarian && (
+                <label class="inline-flex items-center">
+                  <input type="checkbox" class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500" data-filter="vegetarian">
+                  <span class="ml-2 text-sm text-stone-700">Vegetarian</span>
+                </label>
+              )}
+              {hasVegan && (
+                <label class="inline-flex items-center">
+                  <input type="checkbox" class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500" data-filter="vegan">
+                  <span class="ml-2 text-sm text-stone-700">Vegan</span>
+                </label>
+              )}
+              {hasGlutenFree && (
+                <label class="inline-flex items-center">
+                  <input type="checkbox" class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500" data-filter="glutenFree">
+                  <span class="ml-2 text-sm text-stone-700">Gluten-Free</span>
+                </label>
+              )}
+              <button 
+                id="clear-filters" 
+                class="ml-auto text-sm text-amber-600 hover:text-amber-700 hidden"
+              >
+                Clear Filters
+              </button>
             </div>
           </div>
-        )
-      }
-
-      <!-- Menu categories -->
-      <div class="space-y-12" id="menu-content">
-        {
-          categories.map(
-            (category) =>
-              menuItems[category].length > 0 && (
-                <div
-                  class="menu-category"
-                  id={`category-${category.toLowerCase().replace(" ", "-")}`}>
-                  <h2 class="text-2xl font-semibold mb-6 text-center">
-                    {category}
-                  </h2>
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {menuItems[category].map((item) => (
-                      <div
-                        class="menu-item"
-                        data-vegetarian={item.vegetarian.toString()}
-                        data-vegan={item.vegan.toString()}
-                        data-gluten-free={item.glutenFree.toString()}>
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                          <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                              <h3 class="text-lg font-semibold">
-                                {item.title}
-                              </h3>
-                              <span class="text-amber-600 font-medium">
-                                ${item.price.toFixed(2)}
-                              </span>
-                            </div>
-                            <p class="text-stone-600 text-sm mb-3">
-                              {item.description}
-                            </p>
-                            <div class="flex flex-wrap items-center gap-2 mt-auto">
-                              {item.vegetarian && (
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
-                                  Vegetarian
-                                </span>
-                              )}
-                              {item.vegan && (
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
-                                  Vegan
-                                </span>
-                              )}
-                              {item.glutenFree && (
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
-                                  Gluten-Free
-                                </span>
-                              )}
-                              {item.spicyLevel > 0 && (
-                                <div class="flex items-center">
-                                  <span class="text-xs text-stone-600 mr-1">
-                                    Spicy: {item.spicyLevel}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
+        </div>
+      )}
+      
+      {allMenuItems.length === 0 ? (
+        <div class="bg-white p-8 rounded-lg shadow-md text-center">
+          <p class="text-lg text-stone-600">{noItemsMessage}</p>
+        </div>
+      ) : (
+        <!-- Menu categories -->
+        <div class="space-y-12" id="menu-content">
+          {categories.map(category => (
+            menuByCategory[category].length > 0 && (
+              <div class="menu-category" id={`category-${category.toLowerCase().replace(' ', '-')}`}>
+                <h2 class="text-2xl font-semibold mb-6 text-center">{category}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {menuByCategory[category].map(item => (
+                    <div 
+                      class="menu-item"
+                      data-vegetarian={item.data.vegetarian.toString()}
+                      data-vegan={item.data.vegan.toString()}
+                      data-gluten-free={item.data.glutenFree.toString()}
+                    >
+                      <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        {item.data.image && (
+                          <div class="relative h-48 bg-gray-200">
+                            <img 
+                              src={item.data.image} 
+                              alt={item.data.title} 
+                              class="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+                        <div class="p-4">
+                          <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-semibold">{item.data.title}</h3>
+                            <span class="text-amber-600 font-medium">${item.data.price.toFixed(2)}</span>
+                          </div>
+                          <p class="text-stone-600 text-sm mb-3">{item.data.description}</p>
+                          <div class="flex flex-wrap items-center gap-2 mt-auto">
+                            {item.data.vegetarian && (
+                              <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Vegetarian</span>
+                            )}
+                            {item.data.vegan && (
+                              <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Vegan</span>
+                            )}
+                            {item.data.glutenFree && (
+                              <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Gluten-Free</span>
+                            )}
+                            {item.data.spicyLevel > 0 && (
+                              <div class="flex items-center">
+                                <span class="text-xs text-stone-600 mr-1">Spicy: {item.data.spicyLevel}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              )
-          )
-        }
-      </div>
-
+              </div>
+            )
+          ))}
+        </div>
+      )}
+      
       <!-- No results message (hidden by default) -->
       <div id="no-results" class="hidden text-center py-8">
-        <p class="text-lg text-stone-600">
-          No menu items match your selected filters.
-        </p>
-        <button
-          id="clear-filters-alt"
-          class="mt-2 text-amber-600 hover:text-amber-700 underline">
+        <p class="text-lg text-stone-600">No menu items match your selected filters.</p>
+        <button 
+          id="clear-filters-alt" 
+          class="mt-2 text-amber-600 hover:text-amber-700 underline"
+        >
           Clear filters
         </button>
       </div>
@@ -280,93 +173,85 @@ const categories = Object.keys(menuItems);
 
 <script>
   // Menu filtering functionality
-  document.addEventListener("DOMContentLoaded", () => {
-    const menuFilters = document.querySelectorAll(
-      '#menu-filters input[type="checkbox"]'
-    );
-    const clearFiltersBtn = document.getElementById("clear-filters");
-    const clearFiltersAltBtn = document.getElementById("clear-filters-alt");
-    const menuItems = document.querySelectorAll(".menu-item");
-    const noResults = document.getElementById("no-results");
-    const menuCategories = document.querySelectorAll(".menu-category");
-
+  document.addEventListener('DOMContentLoaded', () => {
+    const menuFilters = document.querySelectorAll('#menu-filters input[type="checkbox"]');
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    const clearFiltersAltBtn = document.getElementById('clear-filters-alt');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const noResults = document.getElementById('no-results');
+    const menuCategories = document.querySelectorAll('.menu-category');
+    
     // Function to filter menu items
     function filterMenuItems() {
       // Get active filters
       const activeFilters = Array.from(menuFilters)
-        .filter((filter) => filter.checked)
-        .map((filter) => filter.getAttribute("data-filter"));
-
+        .filter(filter => filter.checked)
+        .map(filter => filter.getAttribute('data-filter'));
+      
       // Show/hide clear filters button
       if (activeFilters.length > 0) {
-        clearFiltersBtn.classList.remove("hidden");
+        clearFiltersBtn.classList.remove('hidden');
       } else {
-        clearFiltersBtn.classList.add("hidden");
+        clearFiltersBtn.classList.add('hidden');
       }
-
+      
       // If no filters are active, show all items
       if (activeFilters.length === 0) {
-        menuItems.forEach((item) => item.classList.remove("hidden"));
-        menuCategories.forEach((category) =>
-          category.classList.remove("hidden")
-        );
-        noResults.classList.add("hidden");
+        menuItems.forEach(item => item.classList.remove('hidden'));
+        menuCategories.forEach(category => category.classList.remove('hidden'));
+        noResults.classList.add('hidden');
         return;
       }
-
+      
       // Filter items
       let hasVisibleItems = false;
-
-      menuItems.forEach((item) => {
-        const matchesFilters = activeFilters.every((filter) => {
-          const itemValue = item.getAttribute(
-            `data-${filter.toLowerCase().replace("glutenfree", "gluten-free")}`
-          );
-          return itemValue === "true";
+      
+      menuItems.forEach(item => {
+        const matchesFilters = activeFilters.every(filter => {
+          const itemValue = item.getAttribute(`data-${filter.toLowerCase().replace('glutenfree', 'gluten-free')}`);
+          return itemValue === 'true';
         });
-
+        
         if (matchesFilters) {
-          item.classList.remove("hidden");
+          item.classList.remove('hidden');
           hasVisibleItems = true;
         } else {
-          item.classList.add("hidden");
+          item.classList.add('hidden');
         }
       });
-
+      
       // Hide empty categories and show/hide no results message
-      menuCategories.forEach((category) => {
-        const visibleItems = category.querySelectorAll(
-          ".menu-item:not(.hidden)"
-        );
+      menuCategories.forEach(category => {
+        const visibleItems = category.querySelectorAll('.menu-item:not(.hidden)');
         if (visibleItems.length === 0) {
-          category.classList.add("hidden");
+          category.classList.add('hidden');
         } else {
-          category.classList.remove("hidden");
+          category.classList.remove('hidden');
         }
       });
-
+      
       if (hasVisibleItems) {
-        noResults.classList.add("hidden");
+        noResults.classList.add('hidden');
       } else {
-        noResults.classList.remove("hidden");
+        noResults.classList.remove('hidden');
       }
     }
-
+    
     // Add event listeners
-    menuFilters.forEach((filter) => {
-      filter.addEventListener("change", filterMenuItems);
+    menuFilters.forEach(filter => {
+      filter.addEventListener('change', filterMenuItems);
     });
-
+    
     // Clear filters function
     function clearFilters() {
-      menuFilters.forEach((filter) => {
+      menuFilters.forEach(filter => {
         filter.checked = false;
       });
       filterMenuItems();
     }
-
+    
     // Add event listeners to clear filter buttons
-    clearFiltersBtn?.addEventListener("click", clearFilters);
-    clearFiltersAltBtn?.addEventListener("click", clearFilters);
+    clearFiltersBtn?.addEventListener('click', clearFilters);
+    clearFiltersAltBtn?.addEventListener('click', clearFilters);
   });
 </script>

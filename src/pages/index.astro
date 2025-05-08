@@ -1,73 +1,110 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Placeholder data (hardcoded to avoid content collection dependencies)
-const featuredMenuItems = [
-  {
-    data: {
-      title: "Caprese Salad",
-      price: 12.99,
-      description:
-        "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-  },
-  {
-    data: {
-      title: "Grilled Salmon",
-      price: 24.99,
-      description:
-        "Wild-caught salmon with roasted vegetables and lemon-dill sauce.",
-      vegetarian: false,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-  },
-  {
-    data: {
-      title: "Mushroom Risotto",
-      price: 18.99,
-      description:
-        "Creamy arborio rice with wild mushrooms, parmesan, and herbs.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: true,
-      spicyLevel: 0,
-    },
-  },
-  {
-    data: {
-      title: "Chocolate Lava Cake",
-      price: 9.99,
-      description:
-        "Warm chocolate cake with a molten center, served with vanilla ice cream.",
-      vegetarian: true,
-      vegan: false,
-      glutenFree: false,
-      spicyLevel: 0,
-    },
-  },
-];
+// Initialize variables for menu items and specials
+let featuredMenuItems = [];
+let featuredSpecials = [];
 
-// Placeholder specials
-const featuredSpecials = [
-  {
-    data: {
-      title: "Weekend Special",
-      startDate: new Date("2025-01-01"),
-      endDate: new Date("2025-12-31"),
-      description:
-        "A delicious weekend special featuring our chef's signature dish.",
-      price: 24.99,
-      regularPrice: 29.99,
-      featured: true,
+try {
+  // Import the getCollection function from Astro content
+  const { getCollection } = await import("astro:content");
+
+  // Fetch all published menu items
+  const menuItems = await getCollection("menu", ({ data }) => {
+    return data.published === true;
+  });
+
+  // Get one menu item from each category for the featured section
+  const categories = [...new Set(menuItems.map((item) => item.data.category))];
+  featuredMenuItems = Object.values(
+    menuItems.reduce((acc, item) => {
+      if (!acc[item.data.category]) {
+        acc[item.data.category] = item;
+      }
+      return acc;
+    }, {})
+  ).slice(0, 4);
+
+  // Fetch specials
+  const specialsItems = await getCollection("specials", ({ data }) => {
+    // Show only featured specials or the most recent ones
+    return data.featured === true || new Date(data.endDate) >= new Date();
+  });
+
+  // Sort specials by endDate (closest ending first) and take top 2
+  featuredSpecials = [...specialsItems]
+    .sort(
+      (a, b) =>
+        new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime()
+    )
+    .slice(0, 2);
+} catch (error) {
+  console.error("Error loading menu items or specials:", error);
+
+  // Provide fallback content if collections aren't available
+  featuredMenuItems = [
+    {
+      data: {
+        title: "Caprese Salad",
+        price: 12.99,
+        description:
+          "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
+        vegetarian: true,
+        vegan: false,
+        glutenFree: true,
+        spicyLevel: 0,
+      },
     },
-  },
-];
+    {
+      data: {
+        title: "Grilled Salmon",
+        price: 24.99,
+        description:
+          "Wild-caught salmon with roasted vegetables and lemon-dill sauce.",
+        vegetarian: false,
+        vegan: false,
+        glutenFree: true,
+        spicyLevel: 0,
+      },
+    },
+  ];
+
+  featuredSpecials = [
+    {
+      data: {
+        title: "Weekend Special",
+        startDate: new Date("2025-01-01"),
+        endDate: new Date("2025-12-31"),
+        description:
+          "A delicious weekend special featuring our chef's signature dish.",
+        price: 24.99,
+        regularPrice: 29.99,
+        featured: true,
+      },
+    },
+  ];
+}
+
+// Load hours data
+let hours = [];
+try {
+  const hoursData = await import("../content/config/hours.json");
+  hours = hoursData.default.hours;
+} catch (error) {
+  console.error("Error loading hours:", error);
+  hours = [
+    { day: "Monday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Tuesday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Wednesday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Thursday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Friday", open: "11:00 AM", close: "10:00 PM", closed: false },
+    { day: "Saturday", open: "11:00 AM", close: "10:00 PM", closed: false },
+    { day: "Sunday", open: "12:00 PM", close: "8:00 PM", closed: false },
+  ];
+}
+
+// Get the current day
+const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
 ---
 
 <Layout title="Welcome to Our Restaurant">
@@ -136,6 +173,16 @@ const featuredSpecials = [
         {
           featuredMenuItems.map((item) => (
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              {item.data.image && (
+                <div class="relative h-48 bg-gray-200">
+                  <img
+                    src={item.data.image}
+                    alt={item.data.title}
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
               <div class="p-4">
                 <div class="flex justify-between items-start mb-2">
                   <h3 class="text-lg font-semibold">{item.data.title}</h3>
@@ -212,21 +259,32 @@ const featuredSpecials = [
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {featuredSpecials.map((special) => (
-              <div class="bg-white rounded-lg shadow-md overflow-hidden">
+              <div
+                class={`bg-white rounded-lg shadow-md overflow-hidden ${special.data.featured ? "border-2 border-amber-500" : ""}`}>
+                {special.data.image && (
+                  <div class="relative h-48 bg-gray-200">
+                    <img
+                      src={special.data.image}
+                      alt={special.data.title}
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
                 <div class="p-4">
                   <div class="flex flex-col gap-1 mb-3">
                     <h3 class="text-lg font-semibold">{special.data.title}</h3>
                     <div class="text-sm text-stone-500">
                       <span>
-                        {special.data.startDate.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}{" "}
+                        {new Date(special.data.startDate).toLocaleDateString(
+                          "en-US",
+                          { month: "short", day: "numeric" }
+                        )}{" "}
                         -
-                        {special.data.endDate.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {new Date(special.data.endDate).toLocaleDateString(
+                          "en-US",
+                          { month: "short", day: "numeric" }
+                        )}
                       </span>
                     </div>
                   </div>
@@ -244,6 +302,11 @@ const featuredSpecials = [
                     {special.data.regularPrice && special.data.price && (
                       <span class="text-stone-500 line-through text-sm">
                         ${special.data.regularPrice.toFixed(2)}
+                      </span>
+                    )}
+                    {special.data.featured && (
+                      <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded ml-auto">
+                        Featured
                       </span>
                     )}
                   </div>
@@ -285,34 +348,21 @@ const featuredSpecials = [
           <h2 class="text-2xl font-bold mb-6">Hours of Operation</h2>
           <div class="bg-white p-6 rounded-lg shadow-md">
             <ul class="space-y-2">
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Monday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Tuesday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Wednesday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Thursday</span>
-                <span class="text-right">11:00 AM - 9:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Friday</span>
-                <span class="text-right">11:00 AM - 10:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Saturday</span>
-                <span class="text-right">11:00 AM - 10:00 PM</span>
-              </li>
-              <li class="flex justify-between py-1 border-b border-stone-200">
-                <span>Sunday</span>
-                <span class="text-right">12:00 PM - 8:00 PM</span>
-              </li>
+              {
+                hours.map((item) => (
+                  <li
+                    class={`flex justify-between py-1 border-b border-stone-200 ${item.day === currentDay ? "font-medium" : ""}`}>
+                    <span>{item.day}</span>
+                    <span class="text-right">
+                      {item.closed ? (
+                        <span class="text-red-600">Closed</span>
+                      ) : (
+                        `${item.open} - ${item.close}`
+                      )}
+                    </span>
+                  </li>
+                ))
+              }
             </ul>
           </div>
         </div>

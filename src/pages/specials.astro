@@ -1,57 +1,48 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Hardcoded specials data
-const specials = [
-  {
-    title: "Date Night Special",
-    startDate: new Date("2025-05-01"),
-    endDate: new Date("2025-06-30"),
-    description:
-      "Enjoy a romantic evening with our special three-course menu for two. Includes appetizer, two entrees, and a shared dessert.",
-    price: 79.99,
-    regularPrice: 99.99,
-    featured: true,
-    active: true,
-  },
-  {
-    title: "Weekday Lunch Express",
-    startDate: new Date("2025-04-15"),
-    endDate: new Date("2025-07-15"),
-    description:
-      "Perfect for busy professionals! Choose from a select menu of quick lunch options, served within 15 minutes or it's free.",
-    price: 15.99,
-    regularPrice: 18.99,
-    featured: false,
-    active: true,
-  },
-  {
-    title: "Happy Hour",
-    startDate: new Date("2025-01-01"),
-    endDate: new Date("2025-12-31"),
-    description:
-      "Join us Monday through Friday, 4-7 PM for half-price appetizers and $2 off all drinks.",
-    price: null,
-    regularPrice: null,
-    featured: false,
-    active: true,
-  },
-  {
-    title: "Spring Tasting Menu",
-    startDate: new Date("2025-03-01"),
-    endDate: new Date("2025-04-30"),
-    description:
-      "Celebrate the flavors of spring with our special seasonal tasting menu featuring the freshest local ingredients.",
-    price: 49.99,
-    regularPrice: 59.99,
-    featured: false,
-    active: false,
-  },
-];
+// Initialize variables for specials
+let activeSpecials = [];
+let pastSpecials = [];
 
-// Separate active and past specials
-const activeSpecials = specials.filter((special) => special.active);
-const pastSpecials = specials.filter((special) => !special.active);
+try {
+  // Import the getCollection function from Astro content
+  const { getCollection } = await import("astro:content");
+
+  // Fetch all specials
+  const allSpecials = await getCollection("specials");
+
+  // Separate active and past specials
+  const now = new Date();
+  activeSpecials = allSpecials
+    .filter((special) => new Date(special.data.endDate) >= now)
+    .sort((a, b) => {
+      // Featured specials first, then by end date (soonest ending first)
+      if (a.data.featured && !b.data.featured) return -1;
+      if (!a.data.featured && b.data.featured) return 1;
+      return (
+        new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime()
+      );
+    });
+
+  pastSpecials = allSpecials
+    .filter((special) => new Date(special.data.endDate) < now)
+    .sort(
+      (a, b) =>
+        // Sort by end date (most recent first)
+        new Date(b.data.endDate).getTime() - new Date(a.data.endDate).getTime()
+    );
+} catch (error) {
+  console.error("Error loading specials:", error);
+
+  // Provide fallback content if collections aren't available
+  activeSpecials = [];
+  pastSpecials = [];
+}
+
+// Message to display if no specials are found
+const noSpecialsMessage =
+  "No specials are currently available. Check back soon for new offers!";
 ---
 
 <Layout title="Specials & Promotions">
@@ -73,43 +64,66 @@ const pastSpecials = specials.filter((special) => !special.active);
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {activeSpecials.map((special) => (
                 <div
-                  class={`bg-white rounded-lg shadow-md overflow-hidden ${special.featured ? "border-2 border-amber-500" : ""}`}>
+                  class={`bg-white rounded-lg shadow-md overflow-hidden ${special.data.featured ? "border-2 border-amber-500" : ""}`}>
+                  {special.data.image && (
+                    <div class="relative h-48 bg-gray-200">
+                      <img
+                        src={special.data.image}
+                        alt={special.data.title}
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      {special.data.featured && (
+                        <div class="absolute top-0 right-0 bg-amber-500 text-white px-3 py-1 text-sm font-medium">
+                          Featured
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div class="p-4">
                     <div class="flex flex-col gap-1 mb-3">
-                      <h3 class="text-lg font-semibold">{special.title}</h3>
+                      <h3 class="text-lg font-semibold">
+                        {special.data.title}
+                      </h3>
                       <div class="text-sm text-stone-500">
                         <span>
-                          {special.startDate.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}{" "}
+                          {new Date(special.data.startDate).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric" }
+                          )}{" "}
                           -
-                          {special.endDate.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {new Date(special.data.endDate).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric" }
+                          )}
                         </span>
                       </div>
                     </div>
 
                     <p class="text-stone-600 text-sm mb-3">
-                      {special.description}
+                      {special.data.description}
                     </p>
 
                     <div class="flex items-center gap-2">
-                      {special.price && (
+                      {special.data.price && (
                         <span class="text-amber-600 font-medium text-lg">
-                          ${special.price.toFixed(2)}
+                          ${special.data.price.toFixed(2)}
                         </span>
                       )}
-                      {special.regularPrice && special.price && (
+                      {special.data.regularPrice && special.data.price && (
                         <span class="text-stone-500 line-through text-sm">
-                          ${special.regularPrice.toFixed(2)}
+                          ${special.data.regularPrice.toFixed(2)}
                         </span>
                       )}
-                      {special.featured && (
-                        <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded ml-auto">
-                          Featured
+                      {special.data.regularPrice && special.data.price && (
+                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded ml-auto">
+                          Save{" "}
+                          {Math.round(
+                            ((special.data.regularPrice - special.data.price) /
+                              special.data.regularPrice) *
+                              100
+                          )}
+                          %
                         </span>
                       )}
                     </div>
@@ -120,10 +134,7 @@ const pastSpecials = specials.filter((special) => !special.active);
           </div>
         ) : (
           <div class="text-center py-8 mb-8 bg-white rounded-lg shadow-sm">
-            <p class="text-lg text-stone-600">
-              There are no active specials at the moment. Check back soon for
-              new offers!
-            </p>
+            <p class="text-lg text-stone-600">{noSpecialsMessage}</p>
           </div>
         )
       }
@@ -161,39 +172,51 @@ const pastSpecials = specials.filter((special) => !special.active);
           <div>
             <h2 class="text-2xl font-semibold mb-6">Past Offers</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-70">
-              {pastSpecials.map((special) => (
+              {pastSpecials.slice(0, 6).map((special) => (
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                  {special.data.image && (
+                    <div class="relative h-48 bg-gray-200">
+                      <img
+                        src={special.data.image}
+                        alt={special.data.title}
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
                   <div class="p-4">
                     <div class="flex flex-col gap-1 mb-3">
-                      <h3 class="text-lg font-semibold">{special.title}</h3>
+                      <h3 class="text-lg font-semibold">
+                        {special.data.title}
+                      </h3>
                       <div class="text-sm text-stone-500">
                         <span>
-                          {special.startDate.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}{" "}
+                          {new Date(special.data.startDate).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric" }
+                          )}{" "}
                           -
-                          {special.endDate.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {new Date(special.data.endDate).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric" }
+                          )}
                         </span>
                       </div>
                     </div>
 
                     <p class="text-stone-600 text-sm mb-3">
-                      {special.description}
+                      {special.data.description}
                     </p>
 
                     <div class="flex items-center gap-2">
-                      {special.price && (
+                      {special.data.price && (
                         <span class="text-amber-600 font-medium text-lg">
-                          ${special.price.toFixed(2)}
+                          ${special.data.price.toFixed(2)}
                         </span>
                       )}
-                      {special.regularPrice && special.price && (
+                      {special.data.regularPrice && special.data.price && (
                         <span class="text-stone-500 line-through text-sm">
-                          ${special.regularPrice.toFixed(2)}
+                          ${special.data.regularPrice.toFixed(2)}
                         </span>
                       )}
                     </div>
