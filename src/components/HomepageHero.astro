@@ -1,6 +1,6 @@
 ---
 // HomepageHero.astro
-// A full-width hero component for the homepage with customizable content and styling
+// A full-width hero component for the homepage with responsive background images
 
 import { Image } from "astro:assets";
 
@@ -11,9 +11,11 @@ export interface Props {
   mainButtonUrl: string;
   secondaryButtonText?: string;
   secondaryButtonUrl?: string;
-  backgroundImageSrc?: string | ImageMetadata;
+  desktopBackgroundSrc?: string | ImageMetadata;
+  mobileBackgroundSrc?: string | ImageMetadata;
   overlayColor?: string;
   height?: string;
+  mobileHeight?: string;
 }
 
 const {
@@ -23,32 +25,40 @@ const {
   mainButtonUrl = "/menu",
   secondaryButtonText,
   secondaryButtonUrl = "/contact",
-  backgroundImageSrc,
-  overlayColor = "rgb(0, 0, 0, 0.4)",
+  desktopBackgroundSrc,
+  mobileBackgroundSrc,
+  overlayColor = "rgba(0, 0, 0, 0.6)",
   height = "h-[70vh]",
+  mobileHeight = "h-[60vh]",
 } = Astro.props;
 
 // Check if backgroundImageSrc is an imported image or a string URL
-const isImportedImage =
-  typeof backgroundImageSrc === "object" && backgroundImageSrc !== null;
+const isDesktopImportedImage =
+  typeof desktopBackgroundSrc === "object" && desktopBackgroundSrc !== null;
+const isMobileImportedImage =
+  typeof mobileBackgroundSrc === "object" && mobileBackgroundSrc !== null;
+
+// Use mobile background as fallback for desktop if only one is provided
+const effectiveDesktopSrc = desktopBackgroundSrc || mobileBackgroundSrc;
+const effectiveMobileSrc = mobileBackgroundSrc || desktopBackgroundSrc;
 ---
 
 <section class="relative">
-  <div
-    class={`${height} bg-gradient-to-r from-stone-800 to-stone-900 flex items-center`}>
+  <div class={`md:${height} ${mobileHeight} bg-stone-900 flex items-center`}>
+    {/* Desktop Background Image - Hidden on mobile */}
     {
-      backgroundImageSrc && (
-        <div class="absolute inset-0 overflow-hidden">
-          {isImportedImage ? (
+      effectiveDesktopSrc && (
+        <div class="absolute inset-0 overflow-hidden hidden md:block">
+          {isDesktopImportedImage ? (
             <Image
-              src={backgroundImageSrc}
+              src={effectiveDesktopSrc}
               alt="Hero background"
               class="w-full h-full object-cover"
               loading="eager"
             />
           ) : (
             <img
-              src={backgroundImageSrc}
+              src={effectiveDesktopSrc}
               alt="Hero background"
               class="w-full h-full object-cover"
               loading="eager"
@@ -61,6 +71,34 @@ const isImportedImage =
         </div>
       )
     }
+
+    {/* Mobile Background Image - Hidden on desktop */}
+    {
+      effectiveMobileSrc && (
+        <div class="absolute inset-0 overflow-hidden md:hidden">
+          {isMobileImportedImage ? (
+            <Image
+              src={effectiveMobileSrc}
+              alt="Hero background"
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          ) : (
+            <img
+              src={effectiveMobileSrc}
+              alt="Hero background"
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          )}
+          <div
+            class="absolute inset-0"
+            style={`background-color: ${overlayColor}`}
+          />
+        </div>
+      )
+    }
+
     <div class="container mx-auto px-4 relative z-10 text-center">
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
         {heading}
