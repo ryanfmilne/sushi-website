@@ -22,18 +22,18 @@ const navigationItems = [
 ---
 
 <header
-  class={`${transparent ? "bg-transparent bg-gradient-to-b from-black/80 to-black/0" : "bg-black"} text-white sticky top-0 z-50 transition-colors duration-300`}
+  class={`${transparent ? "bg-transparent bg-gradient-to-b from-black/80 to-black/0" : "bg-black"} text-white fixed w-full top-0 z-50 transition-colors duration-300`}
   id="main-header">
   <div class="container mx-auto p-4">
     <nav class="flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <a href="/" class="flex items-center">
+        <a href="/" class="flex items-center p-2 bg-black round overflow-clip">
           <Image
             src={logoSrc}
             alt="Sushi Restaurant Logo"
-            width={220}
+            width={240}
             height={40}
-            class="h-18 w-auto"
+            class="h-24 w-auto"
             format="webp"
             loading="eager"
           />

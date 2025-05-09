@@ -49,7 +49,7 @@ const effectiveMobileSrc = mobileBackgroundSrc || desktopBackgroundSrc;
 const hasBackgroundImage = effectiveDesktopSrc || effectiveMobileSrc;
 ---
 
-<section class="relative">
+<section class="relative pt-44 pb-8">
   <div
     class={`${hasBackgroundImage ? `md:${height} ${mobileHeight} bg-stone-900 flex items-center` : `${bgColor} ${paddingY}`}`}>
     {/* Desktop Background Image - Hidden on mobile */}
