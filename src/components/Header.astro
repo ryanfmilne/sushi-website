@@ -3,20 +3,27 @@
 import { Image } from "astro:assets";
 import logoSrc from "../assets/sushi-logo.png";
 
+// Props to control header appearance
+export interface Props {
+  transparent?: boolean;
+}
+
+const { transparent = false } = Astro.props;
+
 // Navigation items array - easily updatable
 const navigationItems = [
   { name: "Home", url: "/" },
   { name: "Menu", url: "/menu" },
   { name: "Specials", url: "/specials" },
-  { name: "About", url: "/about" },
   { name: "Contact", url: "/contact" },
-
   // Add new items here in the future
   // Example: { name: "About", url: "/about" }
 ];
 ---
 
-<header class="bg-black text-white shadow-md sticky top-0 z-50">
+<header
+  class={`${transparent ? "bg-transparent bg-gradient-to-b from-black/80 to-black/0" : "bg-black"} text-white sticky top-0 z-50 transition-colors duration-300`}
+  id="main-header">
   <div class="container mx-auto p-4">
     <nav class="flex justify-between items-center">
       <div class="flex items-center gap-2">
@@ -26,7 +33,7 @@ const navigationItems = [
             alt="Sushi Restaurant Logo"
             width={220}
             height={40}
-            class="h-20 w-auto"
+            class="h-18 w-auto"
             format="webp"
             loading="eager"
           />
@@ -35,7 +42,9 @@ const navigationItems = [
       <div class="hidden md:flex space-x-6">
         {
           navigationItems.map((item) => (
-            <a href={item.url} class="hover:text-amber-300 transition-colors">
+            <a
+              href={item.url}
+              class="hover:text-amber-300 transition-colors font-medium">
               {item.name}
             </a>
           ))
@@ -75,9 +84,36 @@ const navigationItems = [
   // Mobile menu toggle
   const mobileMenuButton = document.getElementById("mobile-menu-button");
   const mobileMenu = document.getElementById("mobile-menu");
+  const header = document.getElementById("main-header");
 
   mobileMenuButton?.addEventListener("click", () => {
     mobileMenu?.classList.toggle("hidden");
   });
+
+  // Add scroll event listener to change header background when scrolling
+  document.addEventListener("DOMContentLoaded", () => {
+    const isTransparent = header?.classList.contains("bg-transparent");
+
+    if (isTransparent) {
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 50) {
+          header?.classList.remove(
+            "bg-transparent",
+            "bg-gradient-to-b",
+            "from-black/80",
+            "to-black/0"
+          );
+          header?.classList.add("bg-black", "shadow-md");
+        } else {
+          header?.classList.add(
+            "bg-transparent",
+            "bg-gradient-to-b",
+            "from-black/80",
+            "to-black/0"
+          );
+          header?.classList.remove("bg-black", "shadow-md");
+        }
+      });
+    }
+  });
 </script>
-``

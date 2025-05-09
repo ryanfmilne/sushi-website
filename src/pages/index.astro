@@ -102,7 +102,7 @@ try {
 const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 ---
 
-<Layout title="Welcome to Our Restaurant">
+<Layout title="Welcome to Our Restaurant" transparentHeader={true}>
   <!-- Hero Section using the responsive HomepageHero component -->
   <HomepageHero
     heading="Experience the Art of Sushi"
@@ -115,7 +115,7 @@ const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     mobileBackgroundSrc="/images/hero-mobile.jpg"
     overlayColor="rgba(0, 0, 0, 0.6)"
     height="h-[100vh]"
-    mobileHeight="h-[60vh]"
+    mobileHeight="h-[100vh]"
   />
 
   <!-- About Section -->
@@ -151,4 +151,4 @@ const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
   <section class="py-16 bg-stone-100">
     <!-- Content omitted for brevity -->
   </section>
-</Layout>``
+</Layout>
