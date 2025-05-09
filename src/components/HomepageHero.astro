@@ -1,0 +1,89 @@
+---
+// HomepageHero.astro
+// A full-width hero component for the homepage with customizable content and styling
+
+import { Image } from "astro:assets";
+
+export interface Props {
+  heading: string;
+  subheading: string;
+  mainButtonText: string;
+  mainButtonUrl: string;
+  secondaryButtonText?: string;
+  secondaryButtonUrl?: string;
+  backgroundImageSrc?: string | ImageMetadata;
+  overlayColor?: string;
+  height?: string;
+}
+
+const {
+  heading = "Experience Culinary Excellence",
+  subheading = "Delicious cuisine crafted with passion and the finest ingredients.",
+  mainButtonText = "View Our Menu",
+  mainButtonUrl = "/menu",
+  secondaryButtonText,
+  secondaryButtonUrl = "/contact",
+  backgroundImageSrc,
+  overlayColor = "rgb(0, 0, 0, 0.4)",
+  height = "h-[70vh]",
+} = Astro.props;
+
+// Check if backgroundImageSrc is an imported image or a string URL
+const isImportedImage =
+  typeof backgroundImageSrc === "object" && backgroundImageSrc !== null;
+---
+
+<section class="relative">
+  <div
+    class={`${height} bg-gradient-to-r from-stone-800 to-stone-900 flex items-center`}>
+    {
+      backgroundImageSrc && (
+        <div class="absolute inset-0 overflow-hidden">
+          {isImportedImage ? (
+            <Image
+              src={backgroundImageSrc}
+              alt="Hero background"
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          ) : (
+            <img
+              src={backgroundImageSrc}
+              alt="Hero background"
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          )}
+          <div
+            class="absolute inset-0"
+            style={`background-color: ${overlayColor}`}
+          />
+        </div>
+      )
+    }
+    <div class="container mx-auto px-4 relative z-10 text-center">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+        {heading}
+      </h1>
+      <p class="text-xl text-white/80 max-w-2xl mx-auto mb-8">
+        {subheading}
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a
+          href={mainButtonUrl}
+          class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
+          {mainButtonText}
+        </a>
+        {
+          secondaryButtonText && (
+            <a
+              href={secondaryButtonUrl}
+              class="bg-white hover:bg-stone-100 text-stone-800 px-6 py-3 rounded-md font-medium transition-colors">
+              {secondaryButtonText}
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>

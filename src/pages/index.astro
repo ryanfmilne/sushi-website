@@ -1,5 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import HomepageHero from "../components/HomepageHero.astro";
+
+// Import an image for the hero background (optional)
+// import heroBackgroundSrc from '../assets/hero-background.jpg';
 
 // Initialize variables for menu items and specials
 let featuredMenuItems = [];
@@ -108,35 +112,17 @@ const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
 ---
 
 <Layout title="Welcome to Our Restaurant">
-  <!-- Hero Section with Fixed Z-Index -->
-  <section class="relative">
-    <div
-      class="h-[70vh] bg-gradient-to-r from-stone-800 to-stone-900 flex items-center">
-      <div class="absolute inset-0 overflow-hidden z-0">
-        <div class="w-full h-full bg-black opacity-40"></div>
-      </div>
-      <div class="container mx-auto px-4 relative z-10 text-center">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-          Experience Culinary Excellence
-        </h1>
-        <p class="text-xl text-white/80 max-w-2xl mx-auto mb-8">
-          Delicious cuisine crafted with passion and the finest ingredients.
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <a
-            href="/menu"
-            class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
-            View Our Menu
-          </a>
-          <a
-            href="/contact"
-            class="bg-white hover:bg-stone-100 text-stone-800 px-6 py-3 rounded-md font-medium transition-colors">
-            Make a Reservation
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>````
+  <!-- Hero Section using the new HomepageHero component -->
+  <HomepageHero
+    heading="Experience the Art of Sushi"
+    subheading="Authentic Japanese cuisine crafted with precision and the freshest ingredients."
+    mainButtonText="View Our Menu"
+    mainButtonUrl="/menu"
+    secondaryButtonText="Make a Reservation"
+    secondaryButtonUrl="/contact"
+    backgroundImageSrc="/sushi-hero-bg.jpg"
+    overlayColor="rgba(0, 0, 0, 0.5)"
+  />
 
   <!-- About Section -->
   <section class="py-16 bg-stone-50">
@@ -145,14 +131,14 @@ const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
         <h2 class="text-3xl font-bold mb-6">Our Story</h2>
         <p class="text-lg text-stone-700 mb-6">
           Founded in 2010, our restaurant has been serving the community with
-          authentic cuisine made from locally-sourced ingredients. Our chefs
-          bring decades of culinary expertise to create memorable dining
+          authentic Japanese cuisine made from locally-sourced ingredients. Our
+          chefs bring decades of culinary expertise to create memorable dining
           experiences for our guests.
         </p>
         <p class="text-lg text-stone-700">
-          We believe in sustainable practices, supporting local farmers, and
-          creating dishes that celebrate the rich culinary traditions of our
-          region while adding our own unique modern twist.
+          We believe in sustainable practices, supporting local fishermen, and
+          creating dishes that celebrate the rich culinary traditions of Japan
+          while adding our own unique modern twist.
         </p>
       </div>
     </div>
