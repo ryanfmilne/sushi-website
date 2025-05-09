@@ -5,9 +5,6 @@ import PageHero from '../components/PageHero.astro';
 // Import all menu items from content collection
 let allMenuItems = [];
 let categories = [];
-let hasVegetarian = false;
-let hasVegan = false;
-let hasGlutenFree = false;
 
 try {
   // Import the getCollection function from Astro content
@@ -17,11 +14,6 @@ try {
   allMenuItems = await getCollection('menu', ({ data }) => {
     return data.published === true;
   });
-  
-  // Check for dietary preferences
-  hasVegetarian = allMenuItems.some(item => item.data.vegetarian);
-  hasVegan = allMenuItems.some(item => item.data.vegan);
-  hasGlutenFree = allMenuItems.some(item => item.data.glutenFree);
   
   // Get unique categories and sort them
   categories = [...new Set(allMenuItems.map(item => item.data.category))];
@@ -54,47 +46,9 @@ const noItemsMessage = "No menu items found. The restaurant owner will add menu 
 
 <Layout title="Our Menu">
   <PageHero 
-    title="Our Menu 22" 
+    title="Our Menu" 
     subtitle="Explore our carefully crafted dishes, prepared with fresh, locally-sourced ingredients."
-    bgColor="bg-slate-950"
-    textColor="text-slate-100"
-    paddingY='py-16'
-  >
-    <!-- Menu filters (will be enhanced with JavaScript) -->
-    {(hasVegetarian || hasVegan || hasGlutenFree) && (
-      <div class="max-w-2xl mx-auto mb-8 mt-8">
-        <div class="bg-white p-4 rounded-md shadow-sm">
-          <div class="text-sm font-medium text-stone-700 mb-2">Dietary Preferences:</div>
-          <div class="flex flex-wrap gap-3" id="menu-filters">
-            {hasVegetarian && (
-              <label class="inline-flex items-center">
-                <input type="checkbox" class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500" data-filter="vegetarian">
-                <span class="ml-2 text-sm text-stone-700">Vegetarian</span>
-              </label>
-            )}
-            {hasVegan && (
-              <label class="inline-flex items-center">
-                <input type="checkbox" class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500" data-filter="vegan">
-                <span class="ml-2 text-sm text-stone-700">Vegan</span>
-              </label>
-            )}
-            {hasGlutenFree && (
-              <label class="inline-flex items-center">
-                <input type="checkbox" class="h-4 w-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500" data-filter="glutenFree">
-                <span class="ml-2 text-sm text-stone-700">Gluten-Free</span>
-              </label>
-            )}
-            <button 
-              id="clear-filters" 
-              class="ml-auto text-sm text-amber-600 hover:text-amber-700 hidden"
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-  </PageHero>
+  />
 
   <div class="bg-stone-100 py-8">
     <div class="container mx-auto px-4">
@@ -111,12 +65,7 @@ const noItemsMessage = "No menu items found. The restaurant owner will add menu 
                 <h2 class="text-2xl font-semibold mb-6 text-center">{category}</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {menuByCategory[category].map(item => (
-                    <div 
-                      class="menu-item"
-                      data-vegetarian={item.data.vegetarian.toString()}
-                      data-vegan={item.data.vegan.toString()}
-                      data-gluten-free={item.data.glutenFree.toString()}
-                    >
+                    <div class="menu-item">
                       <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         {item.data.image && (
                           <div class="relative h-48 bg-gray-200">
@@ -160,102 +109,6 @@ const noItemsMessage = "No menu items found. The restaurant owner will add menu 
           ))}
         </div>
       )}
-      
-      <!-- No results message (hidden by default) -->
-      <div id="no-results" class="hidden text-center py-8">
-        <p class="text-lg text-stone-600">No menu items match your selected filters.</p>
-        <button 
-          id="clear-filters-alt" 
-          class="mt-2 text-amber-600 hover:text-amber-700 underline"
-        >
-          Clear filters
-        </button>
-      </div>
     </div>
   </div>
 </Layout>
-
-<script>
-  // Menu filtering functionality
-  document.addEventListener('DOMContentLoaded', () => {
-    const menuFilters = document.querySelectorAll('#menu-filters input[type="checkbox"]');
-    const clearFiltersBtn = document.getElementById('clear-filters');
-    const clearFiltersAltBtn = document.getElementById('clear-filters-alt');
-    const menuItems = document.querySelectorAll('.menu-item');
-    const noResults = document.getElementById('no-results');
-    const menuCategories = document.querySelectorAll('.menu-category');
-    
-    // Function to filter menu items
-    function filterMenuItems() {
-      // Get active filters
-      const activeFilters = Array.from(menuFilters)
-        .filter(filter => filter.checked)
-        .map(filter => filter.getAttribute('data-filter'));
-      
-      // Show/hide clear filters button
-      if (activeFilters.length > 0) {
-        clearFiltersBtn.classList.remove('hidden');
-      } else {
-        clearFiltersBtn.classList.add('hidden');
-      }
-      
-      // If no filters are active, show all items
-      if (activeFilters.length === 0) {
-        menuItems.forEach(item => item.classList.remove('hidden'));
-        menuCategories.forEach(category => category.classList.remove('hidden'));
-        noResults.classList.add('hidden');
-        return;
-      }
-      
-      // Filter items
-      let hasVisibleItems = false;
-      
-      menuItems.forEach(item => {
-        const matchesFilters = activeFilters.every(filter => {
-          const itemValue = item.getAttribute(`data-${filter.toLowerCase().replace('glutenfree', 'gluten-free')}`);
-          return itemValue === 'true';
-        });
-        
-        if (matchesFilters) {
-          item.classList.remove('hidden');
-          hasVisibleItems = true;
-        } else {
-          item.classList.add('hidden');
-        }
-      });
-      
-      // Hide empty categories and show/hide no results message
-      menuCategories.forEach(category => {
-        const visibleItems = category.querySelectorAll('.menu-item:not(.hidden)');
-        if (visibleItems.length === 0) {
-          category.classList.add('hidden');
-        } else {
-          category.classList.remove('hidden');
-        }
-      });
-      
-      if (hasVisibleItems) {
-        noResults.classList.add('hidden');
-      } else {
-        noResults.classList.remove('hidden');
-      }
-    }
-    
-    // Add event listeners
-    menuFilters.forEach(filter => {
-      filter.addEventListener('change', filterMenuItems);
-    });
-    
-    // Clear filters function
-    function clearFilters() {
-      menuFilters.forEach(filter => {
-        filter.checked = false;
-      });
-      filterMenuItems();
-    }
-    
-    // Add event listeners to clear filter buttons
-    clearFiltersBtn?.addEventListener('click', clearFilters);
-    clearFiltersAltBtn?.addEventListener('click', clearFilters);
-  });
-</script>
