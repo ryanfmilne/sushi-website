@@ -1,0 +1,111 @@
+/* Menu-specific styles */
+
+/* Active category link styling */
+.category-link.active {
+  @apply text-amber-600 bg-amber-50 font-medium border-l-4 border-amber-600;
+}
+
+/* Mobile menu scrolling */
+.mobile-category-nav {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.mobile-category-nav::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+/* Smooth scroll behavior */
+html.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Hover effects for menu items */
+.menu-item {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.menu-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Sticky sidebar adjustment for header height */
+@media (min-width: 768px) {
+  .sticky-sidebar {
+    top: 5rem; /* Adjust based on your header height */
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: theme("colors.amber.600") theme("colors.stone.200");
+  }
+
+  .sticky-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sticky-sidebar::-webkit-scrollbar-track {
+    background: theme("colors.stone.100");
+  }
+
+  .sticky-sidebar::-webkit-scrollbar-thumb {
+    background-color: theme("colors.amber.600");
+    border-radius: 6px;
+  }
+}
+
+/* Category heading appearance */
+.category-heading {
+  position: relative;
+}
+
+.category-heading::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: theme("colors.amber.500");
+  border-radius: 2px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  .mobile-category-nav a.active {
+    @apply text-amber-600 border-b-2 border-amber-600;
+  }
+
+  /* Make menu items more compact on mobile */
+  .menu-item {
+    @apply p-3;
+  }
+}
+
+/* Animation for new items if needed */
+.new-badge {
+  @apply bg-red-500 text-white text-xs px-2 py-0.5 rounded-full ml-2;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Image hover effect */
+.menu-item img {
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover img {
+  transform: scale(1.05);
+}
