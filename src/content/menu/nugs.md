@@ -8,5 +8,5 @@ vegetarian: false
 vegan: false
 glutenFree: false
 spicyLevel: 3
-published: true
+published: false
 ---
