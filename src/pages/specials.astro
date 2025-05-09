@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero.astro";
 
 // Initialize variables for specials
 let activeSpecials = [];
@@ -45,17 +46,16 @@ const noSpecialsMessage =
   "No specials are currently available. Check back soon for new offers!";
 ---
 
-<Layout title="Specials & Promotions">
+<Layout title="Specials & Promotions" transparentHeader={true}>
+  <PageHero
+    title="Specials"
+    subtitle="Explore our carefully crafted dishes, prepared with fresh, locally-sourced ingredients."
+    desktopBackgroundSrc="/images/hero-desktop.jpg"
+    mobileBackgroundSrc="/images/hero-mobile.jpg"
+    overlayColor="rgba(0, 0, 0, 0.6)"
+  />
   <div class="bg-stone-100 py-8">
     <div class="container mx-auto px-4">
-      <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">
-        Specials & Promotions
-      </h1>
-      <p class="text-center text-stone-600 max-w-2xl mx-auto mb-8">
-        Discover our latest special offers, seasonal dishes, and limited-time
-        promotions.
-      </p>
-
       <!-- Current Specials -->
       {
         activeSpecials.length > 0 ? (
