@@ -16,6 +16,7 @@ export interface Props {
   overlayColor?: string;
   height?: string;
   mobileHeight?: string;
+  fullScreen?: boolean;
 }
 
 const {
@@ -30,6 +31,7 @@ const {
   overlayColor = "rgba(0, 0, 0, 0.6)",
   height = "h-[70vh]",
   mobileHeight = "h-[60vh]",
+  fullScreen = false,
 } = Astro.props;
 
 // Check if backgroundImageSrc is an imported image or a string URL
@@ -43,9 +45,10 @@ const effectiveDesktopSrc = desktopBackgroundSrc || mobileBackgroundSrc;
 const effectiveMobileSrc = mobileBackgroundSrc || desktopBackgroundSrc;
 ---
 
-<section class="relative">
+<section
+  class={`${fullScreen ? "absolute inset-0 min-h-[100vh] -z-10" : "relative"}`}>
   <div
-    class={`md:${height} ${mobileHeight} bg-stone-900 flex items-center pt-0 mt-0`}>
+    class={`${fullScreen ? "h-[100vh]" : `md:${height} ${mobileHeight}`} bg-stone-900 flex items-center`}>
     {/* Desktop Background Image - Hidden on mobile */}
     {
       effectiveDesktopSrc && (
@@ -102,7 +105,7 @@ const effectiveMobileSrc = mobileBackgroundSrc || desktopBackgroundSrc;
 
     <div class="container mx-auto px-4 relative z-10 text-center">
       <h1
-        class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 pt-16 md:pt-24">
+        class={`text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 ${fullScreen ? "pt-24 md:pt-28" : ""}`}>
         {heading}
       </h1>
       <p class="text-xl text-white/80 max-w-2xl mx-auto mb-8">
