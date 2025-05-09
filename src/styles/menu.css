@@ -2,7 +2,11 @@
 
 /* Active category link styling */
 .category-link.active {
-  @apply text-amber-600 bg-amber-50 font-medium border-l-4 border-amber-600;
+  background-color: #fff7ed; /* orange-50 */
+  border-left-width: 4px;
+  border-left-color: #ea580c; /* orange-600 */
+  color: #ea580c; /* orange-600 */
+  font-weight: 500;
 }
 
 /* Mobile menu scrolling */
@@ -38,7 +42,7 @@ html.smooth-scroll {
     max-height: calc(100vh - 8rem);
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: #d97706 #e5e7eb; /* amber-600 and gray-200 */
+    scrollbar-color: #ea580c #e5e7eb; /* orange-600 and gray-200 */
   }
 
   .sticky-sidebar::-webkit-scrollbar {
@@ -50,7 +54,7 @@ html.smooth-scroll {
   }
 
   .sticky-sidebar::-webkit-scrollbar-thumb {
-    background-color: #d97706; /* amber-600 */
+    background-color: #ea580c; /* orange-600 */
     border-radius: 6px;
   }
 }
@@ -67,25 +71,35 @@ html.smooth-scroll {
   left: 0;
   width: 60px;
   height: 3px;
-  background-color: #f59e0b; /* amber-500 */
+  background-color: #f97316; /* orange-500 */
   border-radius: 2px;
 }
 
 /* Mobile adjustments */
 @media (max-width: 767px) {
   .mobile-category-nav a.active {
-    @apply text-amber-600 border-b-2 border-amber-600;
+    color: #ea580c; /* orange-600 */
+    border-bottom-width: 2px;
+    border-bottom-color: #ea580c; /* orange-600 */
   }
 
   /* Make menu items more compact on mobile */
   .menu-item {
-    @apply p-3;
+    padding: 0.75rem;
   }
 }
 
 /* Animation for new items if needed */
 .new-badge {
-  @apply bg-red-500 text-white text-xs px-2 py-0.5 rounded-full ml-2;
+  background-color: #ef4444; /* red-500 */
+  color: white;
+  font-size: 0.75rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  border-radius: 9999px;
+  margin-left: 0.5rem;
   animation: pulse 2s infinite;
 }
 
