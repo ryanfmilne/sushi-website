@@ -38,7 +38,7 @@ html.smooth-scroll {
     max-height: calc(100vh - 8rem);
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: theme("colors.amber.600") theme("colors.stone.200");
+    scrollbar-color: #d97706 #e5e7eb; /* amber-600 and gray-200 */
   }
 
   .sticky-sidebar::-webkit-scrollbar {
@@ -46,11 +46,11 @@ html.smooth-scroll {
   }
 
   .sticky-sidebar::-webkit-scrollbar-track {
-    background: theme("colors.stone.100");
+    background: #f3f4f6; /* gray-100 */
   }
 
   .sticky-sidebar::-webkit-scrollbar-thumb {
-    background-color: theme("colors.amber.600");
+    background-color: #d97706; /* amber-600 */
     border-radius: 6px;
   }
 }
@@ -67,7 +67,7 @@ html.smooth-scroll {
   left: 0;
   width: 60px;
   height: 3px;
-  background-color: theme("colors.amber.500");
+  background-color: #f59e0b; /* amber-500 */
   border-radius: 2px;
 }
 
