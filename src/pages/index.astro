@@ -1,6 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import HomepageHero from '../components/HomepageHero.astro';
+import Layout from "../layouts/Layout.astro";
+import HomepageHero from "../components/HomepageHero.astro";
 
 // Initialize variables for menu items and specials
 let featuredMenuItems = [];
@@ -8,15 +8,15 @@ let featuredSpecials = [];
 
 try {
   // Import the getCollection function from Astro content
-  const { getCollection } = await import('astro:content');
-  
+  const { getCollection } = await import("astro:content");
+
   // Fetch all published menu items
-  const menuItems = await getCollection('menu', ({ data }) => {
+  const menuItems = await getCollection("menu", ({ data }) => {
     return data.published === true;
   });
-  
+
   // Get one menu item from each category for the featured section
-  const categories = [...new Set(menuItems.map(item => item.data.category))];
+  const categories = [...new Set(menuItems.map((item) => item.data.category))];
   featuredMenuItems = Object.values(
     menuItems.reduce((acc, item) => {
       if (!acc[item.data.category]) {
@@ -25,198 +25,93 @@ try {
       return acc;
     }, {})
   ).slice(0, 4);
-  
+
   // Fetch specials
-  const specialsItems = await getCollection('specials', ({ data }) => {
+  const specialsItems = await getCollection("specials", ({ data }) => {
     // Show only featured specials or the most recent ones
     return data.featured === true || new Date(data.endDate) >= new Date();
   });
-  
+
   // Sort specials by endDate (closest ending first) and take top 2
   featuredSpecials = [...specialsItems]
-    .sort((a, b) => new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime()
+    )
     .slice(0, 2);
 } catch (error) {
-  console.error('Error loading menu items or specials:', error);
-  
+  console.error("Error loading menu items or specials:", error);
+
   // Provide fallback content if collections aren't available
   featuredMenuItems = [
     {
       data: {
         title: "Caprese Salad",
         price: 12.99,
-        description: "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
+        description:
+          "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
         vegetarian: true,
         vegan: false,
         glutenFree: true,
-        spicyLevel: 0
-      }
+        spicyLevel: 0,
+      },
     },
     {
       data: {
         title: "Grilled Salmon",
         price: 24.99,
-        description: "Wild-caught salmon with roasted vegetables and lemon-dill sauce.",
+        description:
+          "Wild-caught salmon with roasted vegetables and lemon-dill sauce.",
         vegetarian: false,
         vegan: false,
         glutenFree: true,
-        spicyLevel: 0
-      }
-    }
+        spicyLevel: 0,
+      },
+    },
   ];
-  
+
   featuredSpecials = [
     {
       data: {
         title: "Weekend Special",
         startDate: new Date("2025-01-01"),
         endDate: new Date("2025-12-31"),
-        description: "A delicious weekend special featuring our chef's signature dish.",
+        description:
+          "A delicious weekend special featuring our chef's signature dish.",
         price: 24.99,
         regularPrice: 29.99,
-        featured: true
-      }
-    }
-  ];
-}
-
-// Load hours data
-let hours = [];
-try {
-  const hoursData = await import('../content/config/hours.json');
-  hours = hoursData.default.hours;
-} catch (error) {
-  console.error('Error loading hours:', error);
-  hours = [
-    { day: 'Monday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Tuesday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Wednesday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Thursday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Friday', open: '11:00 AM', close: '10:00 PM', closed: false },
-    { day: 'Saturday', open: '11:00 AM', close: '10:00 PM', closed: false },
-    { day: 'Sunday', open: '12:00 PM', close: '8:00 PM', closed: false }
-  ];
-}
-
-// Get the current day
-const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
----
-
-<Layout title="Welcome to Our Restaurant" transparentHeader={true} heroFullScreen={true}>
-  <!-- Hero Section using the responsive HomepageHero component -->
-  <HomepageHero
-    heading="Experience the Art of Sushi"
-    subheading="Authentic Japanese cuisine crafted with precision and the freshest ingredients."
-    mainButtonText="View Our Menu"
-    mainButtonUrl="/menu"
-    secondaryButtonText="View Our Specials"
-    secondaryButtonUrl="/specials"
-    desktopBackgroundSrc="/images/hero-desktop.jpg"
-    mobileBackgroundSrc="/images/hero-mobile.jpg"---
-import Layout from '../layouts/Layout.astro';
-import HomepageHero from '../components/HomepageHero.astro';
-
-// Initialize variables for menu items and specials
-let featuredMenuItems = [];
-let featuredSpecials = [];
-
-try {
-  // Import the getCollection function from Astro content
-  const { getCollection } = await import('astro:content');
-  
-  // Fetch all published menu items
-  const menuItems = await getCollection('menu', ({ data }) => {
-    return data.published === true;
-  });
-  
-  // Get one menu item from each category for the featured section
-  const categories = [...new Set(menuItems.map(item => item.data.category))];
-  featuredMenuItems = Object.values(
-    menuItems.reduce((acc, item) => {
-      if (!acc[item.data.category]) {
-        acc[item.data.category] = item;
-      }
-      return acc;
-    }, {})
-  ).slice(0, 4);
-  
-  // Fetch specials
-  const specialsItems = await getCollection('specials', ({ data }) => {
-    // Show only featured specials or the most recent ones
-    return data.featured === true || new Date(data.endDate) >= new Date();
-  });
-  
-  // Sort specials by endDate (closest ending first) and take top 2
-  featuredSpecials = [...specialsItems]
-    .sort((a, b) => new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime())
-    .slice(0, 2);
-} catch (error) {
-  console.error('Error loading menu items or specials:', error);
-  
-  // Provide fallback content if collections aren't available
-  featuredMenuItems = [
-    {
-      data: {
-        title: "Caprese Salad",
-        price: 12.99,
-        description: "Fresh mozzarella, heirloom tomatoes, basil, and balsamic glaze.",
-        vegetarian: true,
-        vegan: false,
-        glutenFree: true,
-        spicyLevel: 0
-      }
+        featured: true,
+      },
     },
-    {
-      data: {
-        title: "Grilled Salmon",
-        price: 24.99,
-        description: "Wild-caught salmon with roasted vegetables and lemon-dill sauce.",
-        vegetarian: false,
-        vegan: false,
-        glutenFree: true,
-        spicyLevel: 0
-      }
-    }
-  ];
-  
-  featuredSpecials = [
-    {
-      data: {
-        title: "Weekend Special",
-        startDate: new Date("2025-01-01"),
-        endDate: new Date("2025-12-31"),
-        description: "A delicious weekend special featuring our chef's signature dish.",
-        price: 24.99,
-        regularPrice: 29.99,
-        featured: true
-      }
-    }
   ];
 }
 
 // Load hours data
 let hours = [];
 try {
-  const hoursData = await import('../content/config/hours.json');
+  const hoursData = await import("../content/config/hours.json");
   hours = hoursData.default.hours;
 } catch (error) {
-  console.error('Error loading hours:', error);
+  console.error("Error loading hours:", error);
   hours = [
-    { day: 'Monday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Tuesday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Wednesday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Thursday', open: '11:00 AM', close: '9:00 PM', closed: false },
-    { day: 'Friday', open: '11:00 AM', close: '10:00 PM', closed: false },
-    { day: 'Saturday', open: '11:00 AM', close: '10:00 PM', closed: false },
-    { day: 'Sunday', open: '12:00 PM', close: '8:00 PM', closed: false }
+    { day: "Monday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Tuesday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Wednesday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Thursday", open: "11:00 AM", close: "9:00 PM", closed: false },
+    { day: "Friday", open: "11:00 AM", close: "10:00 PM", closed: false },
+    { day: "Saturday", open: "11:00 AM", close: "10:00 PM", closed: false },
+    { day: "Sunday", open: "12:00 PM", close: "8:00 PM", closed: false },
   ];
 }
 
 // Get the current day
-const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
 ---
 
-<Layout title="Welcome to Our Restaurant" transparentHeader={true} heroFullScreen={true}>
+<Layout
+  title="Welcome to Our Restaurant"
+  transparentHeader={true}
+  heroFullScreen={true}>
   <!-- Hero Section using the responsive HomepageHero component -->
   <HomepageHero
     heading="Experience the Art of Sushi"
@@ -240,109 +135,19 @@ const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
       <div class="max-w-3xl mx-auto text-center">
         <h2 class="text-3xl font-bold mb-6">Our Story</h2>
         <p class="text-lg text-stone-700 mb-6">
-          Founded in 2010, our restaurant has been serving the community with authentic Japanese cuisine made from locally-sourced ingredients. Our chefs bring decades of culinary expertise to create memorable dining experiences for our guests.
+          Founded in 2010, our restaurant has been serving the community with
+          authentic Japanese cuisine made from locally-sourced ingredients. Our
+          chefs bring decades of culinary expertise to create memorable dining
+          experiences for our guests.
         </p>
         <p class="text-lg text-stone-700">
-          We believe in sustainable practices, supporting local fishermen, and creating dishes that celebrate the rich culinary traditions of Japan while adding our own unique modern twist.
+          We believe in sustainable practices, supporting local fishermen, and
+          creating dishes that celebrate the rich culinary traditions of Japan
+          while adding our own unique modern twist.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Featured Menu Section -->
-  <section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-      <h2 class="text-3xl font-bold text-center mb-10">Popular Dishes</h2>
-      <!-- Menu items would be displayed here -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Featured menu items would be mapped here -->
-      </div>
-      
-      <div class="text-center mt-10">
-        <a href="/menu" class="inline-block bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
-          View Full Menu
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Specials Section -->
-  <section class="py-16 bg-amber-50">
-    <div class="container mx-auto px-4">
-      <h2 class="text-3xl font-bold text-center mb-10">Special Offers</h2>
-      <!-- Special offers would be displayed here -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-        <!-- Special items would be mapped here -->
-      </div>
-      
-      <div class="text-center mt-10">
-        <a href="/specials" class="inline-block bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
-          View All Specials
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Hours & Reservation Section -->
-  <section class="py-16 bg-stone-100">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-4xl mx-auto">
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-2xl font-bold mb-4">Hours of Operation</h2>
-          <!-- Hours would be displayed here -->
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-2xl font-bold mb-4">Make a Reservation</h2>
-          <p class="mb-4 text-stone-600">
-            Reserve your table today for a memorable dining experience.
-          </p>
-          <a href="/contact" class="inline-block bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
-            Contact Us
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-</Layout>
-    overlayColor="rgba(0, 0, 0, 0.6)"
-    fullScreen={true}
-  />
-
-  <!-- Empty div to push content below hero -->
-  <div class="h-screen"></div>
-
-  <!-- About Section -->
-  <section class="py-16 bg-stone-50">
-    <div class="container mx-auto px-4">
-      <div class="max-w-3xl mx-auto text-center">
-        <h2 class="text-3xl font-bold mb-6">Our Story</h2>
-        <p class="text-lg text-stone-700 mb-6">
-          Founded in 2010, our restaurant has been serving the community with authentic Japanese cuisine made from locally-sourced ingredients. Our chefs bring decades of culinary expertise to create memorable dining experiences for our guests.
-        </p>
-        <p class="text-lg text-stone-700">
-          We believe in sustainable practices, supporting local fishermen, and creating dishes that celebrate the rich culinary traditions of Japan while adding our own unique modern twist.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Rest of the page remains the same... -->
-  
-  <!-- Featured Menu Section -->
-  <section class="py-16 bg-white">
-    <!-- Content omitted for brevity -->
-  </section>
-
-  <!-- Specials Section -->
-  {featuredSpecials.length > 0 && (
-    <section class="py-16 bg-amber-50">
-      <!-- Content omitted for brevity -->
-    </section>
-  )}
-
-  <!-- Hours & Reservation Section -->
-  <section class="py-16 bg-stone-100">
-    <!-- Content omitted for brevity -->
-  </section>
+  <!-- Rest of the page content -->
 </Layout>
