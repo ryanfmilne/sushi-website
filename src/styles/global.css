@@ -1,6 +1,12 @@
 /* Tailwind directives */
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #d20319;
+  --color-secondary: #3ab7bf;
+  --color-accent: #78dcca;
+}
+
 /* Custom global styles */
 @layer base {
   html {
