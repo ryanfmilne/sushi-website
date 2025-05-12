@@ -1,7 +1,7 @@
 ---
 title: Anguila
 category: Extras
-price: 0
+price: 1
 description: Anguila
 vegetarian: false
 vegan: false
