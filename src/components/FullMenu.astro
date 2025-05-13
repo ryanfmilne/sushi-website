@@ -82,9 +82,9 @@ const getCategoryId = (category) => {
 
 <div class="bg-stone-100 py-8">
   <div class="container mx-auto px-4">
-    <!-- Mobile Category Navigation (visible on mobile only) -->
+    <!-- Mobile Category Navigation (always sticky on mobile) -->
     <div
-      class="block md:hidden mb-8 bg-white rounded-lg shadow overflow-x-auto mobile-category-nav">
+      class="block md:hidden bg-white rounded-lg shadow overflow-x-auto mobile-category-nav">
       <div class="flex whitespace-nowrap">
         {
           categories.map((category) => (
@@ -207,29 +207,39 @@ const getCategoryId = (category) => {
 </div>
 
 <style>
-  /* Add styles for mobile category navigation sticky behavior */
+  /* Always sticky mobile category navigation */
   .mobile-category-nav {
-    transition: all 0.3s ease-in-out;
+    position: sticky;
+    top: 0; /* Will be set dynamically via JavaScript */
+    z-index: 100;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
     scrollbar-width: none; /* Hide scrollbar in Firefox */
     -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
+    margin: 0;
+    padding: 0;
+    background-color: white;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-out;
+  }
+
+  /* Apply full width when sticky (no rounded corners) */
+  .mobile-category-nav.full-width {
+    width: 100vw !important;
+    left: 0;
+    right: 0;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    border-radius: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   /* Hide scrollbar in Chrome/Safari */
   .mobile-category-nav::-webkit-scrollbar {
     display: none;
-  }
-
-  .mobile-category-nav.sticky {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    z-index: 100;
-    border-radius: 0;
-    margin: 0; /* Remove any margin */
-    padding-top: 0; /* Ensure no top padding */
   }
 
   /* Ensure smooth transitions for the sticky sidebar */
@@ -273,6 +283,57 @@ const getCategoryId = (category) => {
     const categoryLinks = document.querySelectorAll(
       ".category-link, .mobile-category-nav a"
     );
+
+    // Set mobile nav to always be sticky right below the header
+    const header = document.querySelector("header");
+    const mobileNav = document.querySelector(".mobile-category-nav");
+    const stickyDesktopSidebar = document.querySelector(".sticky-sidebar");
+
+    if (header && mobileNav && stickyDesktopSidebar) {
+      const headerHeight = header.offsetHeight;
+
+      // Set both desktop sidebar and mobile nav to stick right below header
+      stickyDesktopSidebar.style.top = `${headerHeight}px`;
+      mobileNav.style.top = `${headerHeight}px`;
+
+      // Check scroll position to apply full width
+      const applyFullWidthOnScroll = () => {
+        if (window.scrollY > 10) {
+          // Apply full width after scrolling a bit
+          mobileNav.classList.add("full-width");
+        } else {
+          mobileNav.classList.remove("full-width");
+        }
+      };
+
+      // Add scroll event listener to toggle full width
+      window.addEventListener("scroll", applyFullWidthOnScroll);
+
+      // Initial check
+      applyFullWidthOnScroll();
+
+      // Add a spacer div after the mobile nav to prevent content jump
+      if (window.innerWidth < 768) {
+        const spacer = document.createElement("div");
+        spacer.style.height = "32px"; // Same as mb-8 (2rem)
+        mobileNav.after(spacer);
+      }
+
+      // Update on window resize
+      window.addEventListener("resize", () => {
+        const newHeaderHeight = header.offsetHeight;
+
+        // Update sticky positions
+        stickyDesktopSidebar.style.top = `${newHeaderHeight}px`;
+        mobileNav.style.top = `${newHeaderHeight}px`;
+
+        // Recalculate active category on resize
+        updateActiveCategory();
+
+        // Check scroll position
+        applyFullWidthOnScroll();
+      });
+    }
 
     // Function to show scroll hint animation for mobile menu
     const showScrollHint = () => {
@@ -385,115 +446,13 @@ const getCategoryId = (category) => {
     // Delay the scroll hint animation
     setTimeout(showScrollHint, 1200);
 
-    // New code for improved sticky behavior
-    const header = document.querySelector("header");
-    const mobileNav = document.querySelector(".mobile-category-nav");
-    const stickyDesktopSidebar = document.querySelector(".sticky-sidebar");
-
-    if (header && mobileNav && stickyDesktopSidebar) {
-      const headerHeight = header.offsetHeight;
-
-      // Set desktop sidebar to stick right below header
-      stickyDesktopSidebar.style.top = `${headerHeight}px`;
-
-      // Create a sentinel element to observe for mobile nav
-      const mobileSentinel = document.createElement("div");
-      mobileSentinel.style.height = "1px";
-      mobileSentinel.style.width = "100%";
-      mobileSentinel.style.visibility = "hidden";
-      mobileSentinel.style.position = "absolute";
-      mobileSentinel.style.top = "0";
-      mobileSentinel.style.left = "0";
-      mobileSentinel.style.pointerEvents = "none";
-
-      // Add sentinel before mobile nav
-      mobileNav.parentNode.insertBefore(mobileSentinel, mobileNav);
-
-      // Intersection Observer for mobile nav
-      const mobileObserverOptions = {
-        threshold: 0,
-        rootMargin: `-${headerHeight}px 0px 0px 0px`,
-      };
-
-      const mobileObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
-            mobileNav.classList.add("sticky");
-            mobileNav.style.top = `${headerHeight}px`;
-
-            // Ensure there's no space between header and mobile nav
-            mobileNav.style.marginTop = "0";
-            mobileNav.style.marginBottom = "0";
-            mobileNav.style.paddingTop = "0";
-          } else {
-            mobileNav.classList.remove("sticky");
-            mobileNav.style.top = "";
-
-            // Reset any inline margins/paddings when not sticky
-            mobileNav.style.marginTop = "";
-            mobileNav.style.marginBottom = "";
-            mobileNav.style.paddingTop = "";
-          }
-        });
-      }, mobileObserverOptions);
-
-      mobileObserver.observe(mobileSentinel);
-
-      // Update on window resize
-      window.addEventListener("resize", () => {
-        const newHeaderHeight = header.offsetHeight;
-
-        // Update desktop sidebar
-        stickyDesktopSidebar.style.top = `${newHeaderHeight}px`;
-
-        // Update mobile nav if sticky
-        if (mobileNav.classList.contains("sticky")) {
-          mobileNav.style.top = `${newHeaderHeight}px`;
-        }
-
-        // Update observer
-        mobileObserver.disconnect();
-        const newOptions = {
-          threshold: 0,
-          rootMargin: `-${newHeaderHeight}px 0px 0px 0px`,
-        };
-
-        const newObserver = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) {
-              mobileNav.classList.add("sticky");
-              mobileNav.style.top = `${newHeaderHeight}px`;
-
-              // Ensure there's no space between header and mobile nav
-              mobileNav.style.marginTop = "0";
-              mobileNav.style.marginBottom = "0";
-              mobileNav.style.paddingTop = "0";
-            } else {
-              mobileNav.classList.remove("sticky");
-              mobileNav.style.top = "";
-
-              // Reset any inline margins/paddings when not sticky
-              mobileNav.style.marginTop = "";
-              mobileNav.style.marginBottom = "";
-              mobileNav.style.paddingTop = "";
-            }
-          });
-        }, newOptions);
-
-        newObserver.observe(mobileSentinel);
-
-        // Recalculate active category on resize
-        updateActiveCategory();
-      });
-
-      // Make sure categories update when scrolling with sticky header
-      mobileNav.addEventListener("click", () => {
-        // Delay the update to allow for scrolling to complete
-        setTimeout(updateActiveCategory, 100);
-        // Follow-up check for when animations complete
-        setTimeout(updateActiveCategory, 500);
-      });
-    }
+    // Make sure categories update when scrolling with sticky header
+    mobileNav.addEventListener("click", () => {
+      // Delay the update to allow for scrolling to complete
+      setTimeout(updateActiveCategory, 100);
+      // Follow-up check for when animations complete
+      setTimeout(updateActiveCategory, 500);
+    });
 
     // Function to update active category link and scroll it into view
     const updateActiveCategory = () => {
