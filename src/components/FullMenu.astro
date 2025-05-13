@@ -90,7 +90,7 @@ const getCategoryId = (category) => {
           categories.map((category) => (
             <a
               href={`#${getCategoryId(category)}`}
-              class="py-3 px-4 font-medium text-stone-700 hover:text-orange-600 border-b-2 border-transparent hover:border-orange-600 transition-colors">
+              class="py-3 px-4 font-medium text-stone-700 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors">
               {category}
             </a>
           ))
@@ -113,7 +113,7 @@ const getCategoryId = (category) => {
                     <li>
                       <a
                         href={`#${getCategoryId(category)}`}
-                        class="category-link block py-2 px-3 rounded hover:bg-orange-50 text-stone-700 hover:text-orange-600 transition-colors">
+                        class="category-link block py-2 px-3 rounded hover:primary/20 text-stone-700 hover:text-orange-600 transition-colors">
                         {category}
                       </a>
                     </li>
@@ -136,7 +136,7 @@ const getCategoryId = (category) => {
             <div class="space-y-12">
               {categories.map((category) =>
                 menuByCategory[category]?.length > 0 ? (
-                  <div id={getCategoryId(category)} class="scroll-mt-24">
+                  <div id={getCategoryId(category)} class="scroll-mt-36">
                     <div class="bg-white rounded-lg shadow-md p-6">
                       <h2 class="text-2xl font-heading font-semibold mb-6 pb-2 border-b border-stone-200 category-heading">
                         {category}
@@ -206,6 +206,65 @@ const getCategoryId = (category) => {
   </div>
 </div>
 
+<style>
+  /* Add styles for mobile category navigation sticky behavior */
+  .mobile-category-nav {
+    transition: all 0.3s ease-in-out;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+    scrollbar-width: none; /* Hide scrollbar in Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
+  }
+
+  /* Hide scrollbar in Chrome/Safari */
+  .mobile-category-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-category-nav.sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    z-index: 20;
+    border-radius: 0;
+  }
+
+  /* Ensure smooth transitions for the sticky sidebar */
+  .sticky-sidebar {
+    transition: top 0.3s ease-in-out;
+  }
+
+  /* Style for active category in both mobile and desktop views */
+  .mobile-category-nav a.active {
+    color: #d20319; /* text-orange-600 */
+    border-bottom-color: #d20319; /* border-orange-600 */
+    font-weight: bold;
+  }
+
+  .category-link.active {
+    color: #d20319; /* text-orange-600 */
+    background-color: #d203180e; /* bg-orange-50 */
+    font-weight: bold;
+  }
+
+  /* Define animation for scroll hint */
+  @keyframes scrollHint {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(40px);
+    }
+    50% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+</style>
+
 <script>
   // Smooth scrolling for category links
   document.addEventListener("DOMContentLoaded", () => {
@@ -213,11 +272,212 @@ const getCategoryId = (category) => {
       ".category-link, .mobile-category-nav a"
     );
 
-    // Function to update active category link
+    // Function to show scroll hint animation for mobile menu
+    const showScrollHint = () => {
+      const mobileMenu = document.querySelector(".mobile-category-nav");
+      if (mobileMenu && window.innerWidth < 768) {
+        // Only on mobile screens
+        // Check if the menu is actually scrollable
+        if (mobileMenu.scrollWidth > mobileMenu.clientWidth) {
+          // Save current scroll position
+          const currentScrollPos = mobileMenu.scrollLeft;
+
+          // Animate scroll to indicate more content
+          const scrollDistance = Math.min(
+            30,
+            mobileMenu.scrollWidth - mobileMenu.clientWidth
+          );
+
+          // Timing function for smooth animation with easing
+          const animateScroll = (
+            timestamp,
+            startTime,
+            startPos,
+            distance,
+            duration
+          ) => {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+
+            if (elapsed < duration) {
+              // Easing function: easeOutQuad - acceleration until halfway, then deceleration
+              const progress = elapsed / duration;
+              // Apply cubic-bezier easing curve - similar to CSS ease-out
+              const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+
+              mobileMenu.scrollLeft = startPos + distance * easeOutCubic;
+              requestAnimationFrame((timestamp) =>
+                animateScroll(
+                  timestamp,
+                  startTime,
+                  startPos,
+                  distance,
+                  duration
+                )
+              );
+            } else {
+              // Smoothly return to original position
+              const returnToStart = (
+                timestamp,
+                startTime,
+                startPos,
+                endPos,
+                duration
+              ) => {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+
+                if (elapsed < duration) {
+                  // Apply ease-in-out for return animation
+                  const progress = elapsed / duration;
+                  const easeInOutQuad =
+                    progress < 0.5
+                      ? 2 * progress * progress
+                      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                  mobileMenu.scrollLeft =
+                    startPos + (endPos - startPos) * easeInOutQuad;
+                  requestAnimationFrame((timestamp) =>
+                    returnToStart(
+                      timestamp,
+                      startTime,
+                      startPos,
+                      endPos,
+                      duration
+                    )
+                  );
+                } else {
+                  mobileMenu.scrollLeft = endPos;
+                }
+              };
+
+              // Start the return animation after a small pause
+              setTimeout(() => {
+                requestAnimationFrame((timestamp) =>
+                  returnToStart(
+                    timestamp,
+                    null,
+                    mobileMenu.scrollLeft,
+                    currentScrollPos,
+                    300
+                  )
+                );
+              }, 150);
+            }
+          };
+
+          // Start animation
+          requestAnimationFrame((timestamp) =>
+            animateScroll(
+              timestamp,
+              null,
+              currentScrollPos,
+              scrollDistance,
+              450
+            )
+          );
+        }
+      }
+    };
+
+    // Delay the scroll hint animation
+    setTimeout(showScrollHint, 1200);
+
+    // New code for improved sticky behavior
+    const header = document.querySelector("header");
+    const mobileNav = document.querySelector(".mobile-category-nav");
+    const stickyDesktopSidebar = document.querySelector(".sticky-sidebar");
+
+    if (header && mobileNav && stickyDesktopSidebar) {
+      const headerHeight = header.offsetHeight;
+
+      // Set desktop sidebar to stick right below header
+      stickyDesktopSidebar.style.top = `${headerHeight}px`;
+
+      // Create a sentinel element to observe for mobile nav
+      const mobileSentinel = document.createElement("div");
+      mobileSentinel.style.height = "1px";
+      mobileSentinel.style.width = "100%";
+      mobileSentinel.style.visibility = "hidden";
+      mobileSentinel.style.position = "absolute";
+      mobileSentinel.style.top = "0";
+      mobileSentinel.style.left = "0";
+      mobileSentinel.style.pointerEvents = "none";
+
+      // Add sentinel before mobile nav
+      mobileNav.parentNode.insertBefore(mobileSentinel, mobileNav);
+
+      // Intersection Observer for mobile nav
+      const mobileObserverOptions = {
+        threshold: 0,
+        rootMargin: `-${headerHeight}px 0px 0px 0px`,
+      };
+
+      const mobileObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            mobileNav.classList.add("sticky");
+            mobileNav.style.top = `${headerHeight}px`;
+          } else {
+            mobileNav.classList.remove("sticky");
+            mobileNav.style.top = "";
+          }
+        });
+      }, mobileObserverOptions);
+
+      mobileObserver.observe(mobileSentinel);
+
+      // Update on window resize
+      window.addEventListener("resize", () => {
+        const newHeaderHeight = header.offsetHeight;
+
+        // Update desktop sidebar
+        stickyDesktopSidebar.style.top = `${newHeaderHeight}px`;
+
+        // Update mobile nav if sticky
+        if (mobileNav.classList.contains("sticky")) {
+          mobileNav.style.top = `${newHeaderHeight}px`;
+        }
+
+        // Update observer
+        mobileObserver.disconnect();
+        const newOptions = {
+          threshold: 0,
+          rootMargin: `-${newHeaderHeight}px 0px 0px 0px`,
+        };
+
+        const newObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+              mobileNav.classList.add("sticky");
+              mobileNav.style.top = `${newHeaderHeight}px`;
+            } else {
+              mobileNav.classList.remove("sticky");
+              mobileNav.style.top = "";
+            }
+          });
+        }, newOptions);
+
+        newObserver.observe(mobileSentinel);
+
+        // Recalculate active category on resize
+        updateActiveCategory();
+      });
+
+      // Make sure categories update when scrolling with sticky header
+      mobileNav.addEventListener("click", () => {
+        // Delay the update to allow for scrolling to complete
+        setTimeout(updateActiveCategory, 100);
+        // Follow-up check for when animations complete
+        setTimeout(updateActiveCategory, 500);
+      });
+    }
+
+    // Function to update active category link and scroll it into view
     const updateActiveCategory = () => {
       // Get all category sections
       const sections = document.querySelectorAll(
-        '[id^="entradas-"], [id^="charolas-"], [id^="arroces-"], [id^="naturales-"], [id^="empanizados-"], [id^="horneados-"], [id^="bebidas-"], [id^="extras-"]'
+        '[id^="entradas"], [id^="charolas"], [id^="arroces"], [id^="naturales"], [id^="empanizados"], [id^="horneados"], [id^="bebidas"], [id^="extras"]'
       );
 
       // Find which section is currently most visible
@@ -237,18 +497,79 @@ const getCategoryId = (category) => {
         }
       });
 
+      // Previous active element
+      const previousActive = document.querySelector(
+        ".mobile-category-nav a.active"
+      );
+      let activeChanged = false;
+
       // Update active class
       categoryLinks.forEach((link) => {
         const href = link.getAttribute("href").substring(1);
         if (href === currentSection) {
-          link.classList.add("active");
+          if (!link.classList.contains("active")) {
+            link.classList.add("active");
+            activeChanged = true;
+          }
         } else {
           link.classList.remove("active");
         }
       });
+
+      // Scroll active category into view in mobile navigation
+      const mobileNav = document.querySelector(".mobile-category-nav");
+      const newActiveLink = document.querySelector(
+        ".mobile-category-nav a.active"
+      );
+
+      if (mobileNav && newActiveLink && window.innerWidth < 768) {
+        // Only scroll if active item changed or was not previously in optimal view
+        if (activeChanged || previousActive !== newActiveLink) {
+          // Calculate if the element needs scrolling into better view
+          const navRect = mobileNav.getBoundingClientRect();
+          const linkRect = newActiveLink.getBoundingClientRect();
+
+          // Check if link is partially out of view or not in optimal position
+          const isPartiallyOutOfView =
+            linkRect.left < navRect.left || linkRect.right > navRect.right;
+          const isNotInOptimalPosition = linkRect.left - navRect.left > 20; // Not near the start
+
+          if (isPartiallyOutOfView || isNotInOptimalPosition) {
+            // Smoothly scroll element into view with a small left margin
+            const leftMargin = 12; // Pixel margin from left edge
+            const scrollLeft = newActiveLink.offsetLeft - leftMargin;
+
+            // Use smooth scrolling with easing
+            const startPos = mobileNav.scrollLeft;
+            const distance = scrollLeft - startPos;
+
+            if (Math.abs(distance) > 10) {
+              // Only animate if distance is significant
+              const duration = 300; // ms
+              const startTime = performance.now();
+
+              const animateScroll = (timestamp) => {
+                const elapsed = timestamp - startTime;
+                if (elapsed < duration) {
+                  // Ease out cubic
+                  const progress = elapsed / duration;
+                  const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+
+                  mobileNav.scrollLeft = startPos + distance * easeOutCubic;
+                  requestAnimationFrame(animateScroll);
+                } else {
+                  mobileNav.scrollLeft = scrollLeft;
+                }
+              };
+
+              requestAnimationFrame(animateScroll);
+            }
+          }
+        }
+      }
     };
 
-    // Add click event listeners
+    // Add click event listeners (original code)
     categoryLinks.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
@@ -257,10 +578,21 @@ const getCategoryId = (category) => {
         const targetElement = document.querySelector(targetId);
 
         if (targetElement) {
-          // Smooth scroll to the element
-          targetElement.scrollIntoView({
+          // Get offset for scrolling - account for header height and some extra space
+          const extraOffset = 60; // Extra padding below the header for better visibility
+          const scrollOffset = header ? header.offsetHeight + extraOffset : 80;
+
+          // Get the current position of the target element
+          const targetPosition =
+            targetElement.getBoundingClientRect().top + window.pageYOffset;
+
+          // Calculate position with offset
+          const offsetPosition = targetPosition - scrollOffset;
+
+          // Smooth scroll to adjusted position
+          window.scrollTo({
+            top: offsetPosition,
             behavior: "smooth",
-            block: "start",
           });
 
           // Update URL hash without scrolling
@@ -272,10 +604,10 @@ const getCategoryId = (category) => {
       });
     });
 
-    // Update active category on scroll
+    // Update active category on scroll (original code)
     window.addEventListener("scroll", updateActiveCategory);
 
-    // Initial update
+    // Initial update (original code)
     updateActiveCategory();
   });
 </script>
