@@ -46,8 +46,7 @@ const effectiveDesktopSrc = desktopBackgroundSrc || mobileBackgroundSrc;
 const effectiveMobileSrc = mobileBackgroundSrc || desktopBackgroundSrc;
 ---
 
-<section
-  class={fullScreen ? "absolute inset-0 min-h-[100vh] -z-10" : "relative"}>
+<section class={fullScreen ? "absolute inset-0 h-screen z-10" : "relative"}>
   <div
     class={`${fullScreen ? "h-[100vh]" : `md:${height} ${mobileHeight}`} bg-stone-900 flex items-center`}>
     {/* Desktop Background Image - Hidden on mobile */}
