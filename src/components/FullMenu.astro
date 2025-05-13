@@ -90,7 +90,7 @@ const getCategoryId = (category) => {
           categories.map((category) => (
             <a
               href={`#${getCategoryId(category)}`}
-              class="py-3 px-4 font-medium text-stone-700 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors">
+              class="py-3 px-4 font-medium text-stone-700 hover:text-orange-600 border-b-2 border-transparent hover:border-orange-600 transition-colors">
               {category}
             </a>
           ))
@@ -113,7 +113,7 @@ const getCategoryId = (category) => {
                     <li>
                       <a
                         href={`#${getCategoryId(category)}`}
-                        class="category-link block py-2 px-3 rounded hover:primary/20 text-stone-700 hover:text-orange-600 transition-colors">
+                        class="category-link block py-2 px-3 rounded hover:bg-orange-50 text-stone-700 hover:text-orange-600 transition-colors">
                         {category}
                       </a>
                     </li>
@@ -226,8 +226,10 @@ const getCategoryId = (category) => {
     top: 0;
     left: 0;
     width: 100% !important;
-    z-index: 20;
+    z-index: 100;
     border-radius: 0;
+    margin: 0; /* Remove any margin */
+    padding-top: 0; /* Ensure no top padding */
   }
 
   /* Ensure smooth transitions for the sticky sidebar */
@@ -237,15 +239,15 @@ const getCategoryId = (category) => {
 
   /* Style for active category in both mobile and desktop views */
   .mobile-category-nav a.active {
-    color: #d20319; /* text-orange-600 */
-    border-bottom-color: #d20319; /* border-orange-600 */
     font-weight: bold;
+    color: rgb(234 88 12); /* text-orange-600 */
+    border-bottom-color: rgb(234 88 12); /* border-orange-600 */
   }
 
   .category-link.active {
-    color: #d20319; /* text-orange-600 */
-    background-color: #d203180e; /* bg-orange-50 */
     font-weight: bold;
+    color: rgb(234 88 12); /* text-orange-600 */
+    background-color: rgb(255 247 237); /* bg-orange-50 */
   }
 
   /* Define animation for scroll hint */
@@ -418,9 +420,19 @@ const getCategoryId = (category) => {
           if (!entry.isIntersecting) {
             mobileNav.classList.add("sticky");
             mobileNav.style.top = `${headerHeight}px`;
+
+            // Ensure there's no space between header and mobile nav
+            mobileNav.style.marginTop = "0";
+            mobileNav.style.marginBottom = "0";
+            mobileNav.style.paddingTop = "0";
           } else {
             mobileNav.classList.remove("sticky");
             mobileNav.style.top = "";
+
+            // Reset any inline margins/paddings when not sticky
+            mobileNav.style.marginTop = "";
+            mobileNav.style.marginBottom = "";
+            mobileNav.style.paddingTop = "";
           }
         });
       }, mobileObserverOptions);
@@ -451,9 +463,19 @@ const getCategoryId = (category) => {
             if (!entry.isIntersecting) {
               mobileNav.classList.add("sticky");
               mobileNav.style.top = `${newHeaderHeight}px`;
+
+              // Ensure there's no space between header and mobile nav
+              mobileNav.style.marginTop = "0";
+              mobileNav.style.marginBottom = "0";
+              mobileNav.style.paddingTop = "0";
             } else {
               mobileNav.classList.remove("sticky");
               mobileNav.style.top = "";
+
+              // Reset any inline margins/paddings when not sticky
+              mobileNav.style.marginTop = "";
+              mobileNav.style.marginBottom = "";
+              mobileNav.style.paddingTop = "";
             }
           });
         }, newOptions);
@@ -579,7 +601,7 @@ const getCategoryId = (category) => {
 
         if (targetElement) {
           // Get offset for scrolling - account for header height and some extra space
-          const extraOffset = 60; // Extra padding below the header for better visibility
+          const extraOffset = 20; // Extra padding below the header for better visibility
           const scrollOffset = header ? header.offsetHeight + extraOffset : 80;
 
           // Get the current position of the target element
